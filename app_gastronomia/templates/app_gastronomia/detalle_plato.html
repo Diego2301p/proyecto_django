@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{# ============================================================ #}
+{# detalle_plato.html - Detalle de un plato típico chileno       #}
+{# Extiende de base.html (herencia de plantillas - Requisito 4.3)#}
+{# ============================================================ #}
+
+{% block titulo %}{{ titulo }} - Chile Descubre{% endblock %}
+{% block nav_gastronomia %}active{% endblock %}
+
+{% block content %}
+
+{% if encontrado %}
+
+{# === ENCABEZADO DEL PLATO === #}
+<section class="detail-header" style="background: linear-gradient(135deg, #e67e22 0%, #d35400 100%);">
+    <div class="container">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-2">
+                <li class="breadcrumb-item"><a href="{% url 'turismo_inicio' %}" class="text-white-50">Inicio</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'gastronomia_platos' %}" class="text-white-50">Platos</a></li>
+                <li class="breadcrumb-item active text-white" aria-current="page">{{ plato.nombre }}</li>
+            </ol>
+        </nav>
+        <h1>{{ plato.nombre }}</h1>
+        <p class="lead mb-0">📍 {{ plato.region }}</p>
+    </div>
+</section>
+
+<div class="container mb-5">
+    <div class="row g-4">
+        {# === IMAGEN DEL PLATO === #}
+        <div class="col-lg-6">
+            <img src="{% static 'img/' %}{{ plato.imagen }}" 
+                 class="detail-img" 
+                 alt="Imagen de {{ plato.nombre }}">
+        </div>
+
+        {# === INFORMACIÓN PRINCIPAL === #}
+        <div class="col-lg-6">
+            <div class="detail-info">
+                <h3>Sobre este plato</h3>
+                <p>{{ plato.descripcion }}</p>
+
+                {# Datos rápidos del plato #}
+                <div class="row g-3 mb-3">
+                    <div class="col-4">
+                        <div class="stats-card">
+                            <span class="stats-number" style="font-size: 1.2rem;">
+                                ⏱️ {{ plato.tiempo_formateado }}
+                            </span>
+                            <span class="stats-label">Preparación</span>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="stats-card">
+                            <span class="stats-number" style="font-size: 1.2rem;">
+                                🍽️ {{ plato.porciones }}
+                            </span>
+                            <span class="stats-label">Porciones</span>
+                        </div>
+                    </div>
+                    <div class="col-4">
+                        <div class="stats-card">
+                            <span class="stats-number" style="font-size: 1.2rem;">
+                                {% if plato.dificultad == "Baja" %}🟢
+                                {% elif plato.dificultad == "Media" %}🟡
+                                {% else %}🔴{% endif %}
+                                {{ plato.dificultad }}
+                            </span>
+                            <span class="stats-label">Dificultad</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <strong>💰 Precio referencial:</strong>
+                    <span class="precio-tag-gastro ms-2">${{ plato.precio_formateado }} CLP</span>
+                </div>
+
+                {% if plato.es_vegetariano %}
+                <div class="alert alert-success">
+                    🌱 Este plato es <strong>vegetariano</strong>.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    {# === INGREDIENTES === #}
+    {% if plato.ingredientes %}
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="detail-info">
+                <h3>🥄 Ingredientes ({{ plato.num_ingredientes }})</h3>
+                <ul class="ingredientes-list">
+                    {% for ingrediente in plato.ingredientes %}
+                    <li>{{ ingrediente }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    {# === BOTÓN VOLVER === #}
+    <div class="text-center mt-4">
+        <a href="{% url 'gastronomia_platos' %}" class="btn btn-warning btn-lg">
+            ← Volver a Platos
+        </a>
+    </div>
+</div>
+
+{% else %}
+
+{# === PLATO NO ENCONTRADO === #}
+<div class="container">
+    <div class="not-found">
+        <h2>😕 Plato no encontrado</h2>
+        <p>El plato que buscas no existe en nuestra base de datos.</p>
+        <a href="{% url 'gastronomia_platos' %}" class="btn btn-warning btn-lg">
+            ← Ver todos los platos
+        </a>
+    </div>
+</div>
+
+{% endif %}
+
+{% endblock %}
