@@ -1,0 +1,137 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{# ============================================================ #}
+{# inicio.html - Página de inicio/presentación del sitio         #}
+{# Extiende de base.html (herencia de plantillas - Requisito 4.3)#}
+{# ============================================================ #}
+
+{% block titulo %}{{ titulo }}{% endblock %}
+{% block nav_inicio %}active{% endblock %}
+
+{% block content %}
+
+{# === HERO / BANNER PRINCIPAL === #}
+<section class="hero-section text-center">
+    <div class="container">
+        <h1>🇨🇱 Bienvenido a Chile Descubre</h1>
+        <p class="lead">{{ mensaje_bienvenida }}</p>
+        <p>Explora los destinos turísticos más impresionantes y la gastronomía tradicional de Chile</p>
+        <div class="mt-3">
+            <a href="{% url 'turismo_destinos' %}" class="btn btn-light btn-lg me-2">
+                🏔️ Ver Destinos
+            </a>
+            <a href="{% url 'gastronomia_platos' %}" class="btn btn-outline-light btn-lg">
+                🍽️ Ver Platos Típicos
+            </a>
+        </div>
+    </div>
+</section>
+
+{# === ESTADÍSTICAS GENERALES === #}
+<section class="container mb-5">
+    <div class="row g-3">
+        <div class="col-md-3 col-6">
+            <div class="stats-card">
+                <span class="stats-number">{{ estadisticas.total }}</span>
+                <span class="stats-label">Destinos</span>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="stats-card">
+                <span class="stats-number">{{ estadisticas.destinos_destacados }}</span>
+                <span class="stats-label">Destacados</span>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="stats-card">
+                <span class="stats-number">{{ estadisticas.puntuacion_promedio }}</span>
+                <span class="stats-label">Puntuación Promedio</span>
+            </div>
+        </div>
+        <div class="col-md-3 col-6">
+            <div class="stats-card">
+                <span class="stats-number">{{ categorias|length }}</span>
+                <span class="stats-label">Categorías</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+{# === DESTINOS DESTACADOS === #}
+<section class="container mb-5">
+    <h2 class="text-center mb-4" style="color: var(--color-primario); font-weight: 700;">
+        ⭐ Destinos Destacados
+    </h2>
+    <div class="row g-4">
+        {% for destino in destacados %}
+        <div class="col-md-4">
+            <div class="card">
+                {# Imagen del destino cargada desde static/img/ (Requisito 5.1) #}
+                <img src="{% static 'img/' %}{{ destino.imagen }}" 
+                     class="card-img-top" 
+                     alt="Imagen de {{ destino.nombre }}">
+                <div class="card-body">
+                    <h5 class="card-title">{{ destino.nombre }}</h5>
+                    <p class="card-text text-muted">
+                        📍 {{ destino.region }}
+                    </p>
+                    <p class="card-text">
+                        {{ destino.descripcion|truncatewords:25 }}
+                    </p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="badge badge-turismo">{{ destino.categoria }}</span>
+                        <span class="precio-tag">${{ destino.precio_formateado }}</span>
+                    </div>
+                    <div class="mt-2">
+                        <span class="rating">
+                            ⭐ {{ destino.puntuacion }}
+                        </span>
+                    </div>
+                    <a href="{% url 'turismo_detalle' destino.id %}" 
+                       class="btn btn-outline-primary btn-sm mt-2 w-100">
+                        Ver más detalles →
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center">
+            <p class="text-muted">No hay destinos destacados disponibles.</p>
+        </div>
+        {% endfor %}
+    </div>
+</section>
+
+{# === SECCIONES DEL SITIO === #}
+<section class="container mb-5">
+    <h2 class="text-center mb-4" style="color: var(--color-primario); font-weight: 700;">
+        Explora Nuestras Secciones
+    </h2>
+    <div class="row g-4">
+        <div class="col-md-6">
+            <div class="card border-0" style="background: linear-gradient(135deg, #27ae60, #2ecc71); color: white;">
+                <div class="card-body text-center p-4">
+                    <h3>🏔️ Destinos Turísticos</h3>
+                    <p>Descubre los paisajes más impresionantes de Chile, desde el desierto de Atacama hasta la Patagonia.</p>
+                    <a href="{% url 'turismo_destinos' %}" class="btn btn-light">
+                        Explorar Destinos
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card border-0" style="background: linear-gradient(135deg, #e67e22, #f39c12); color: white;">
+                <div class="card-body text-center p-4">
+                    <h3>🍽️ Gastronomía Típica</h3>
+                    <p>Conoce los platos más emblemáticos de la cocina chilena, sus ingredientes y tradiciones culinarias.</p>
+                    <a href="{% url 'gastronomia_inicio' %}" class="btn btn-light">
+                        Explorar Gastronomía
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+{% endblock %}

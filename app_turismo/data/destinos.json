@@ -1,0 +1,74 @@
+[
+    {
+        "id": 1,
+        "nombre": "Torres del Paine",
+        "region": "Magallanes y Antártica Chilena",
+        "descripcion": "Parque Nacional reconocido mundialmente por sus imponentes torres de granito, glaciares milenarios, lagos de color turquesa y una biodiversidad única. Es uno de los destinos de trekking más importantes del planeta y fue declarado Reserva de la Biósfera por la UNESCO en 1978.",
+        "imagen": "torres_del_paine.jpg",
+        "categoria": "Naturaleza",
+        "precio_estimado": 45000,
+        "puntuacion": 4.9,
+        "destacado": true,
+        "actividades": ["Trekking", "Fotografía", "Avistamiento de fauna", "Kayak"]
+    },
+    {
+        "id": 2,
+        "nombre": "San Pedro de Atacama",
+        "region": "Antofagasta",
+        "descripcion": "Pueblo oasis en medio del desierto más árido del mundo. Ofrece paisajes lunares en el Valle de la Luna, géiseres del Tatio al amanecer, salares interminables y un cielo nocturno considerado el mejor del hemisferio sur para la observación astronómica.",
+        "imagen": "san_pedro_atacama.jpg",
+        "categoria": "Aventura",
+        "precio_estimado": 38000,
+        "puntuacion": 4.8,
+        "destacado": true,
+        "actividades": ["Astronomía", "Sandboard", "Termas", "Tour al Tatio"]
+    },
+    {
+        "id": 3,
+        "nombre": "Valparaíso",
+        "region": "Valparaíso",
+        "descripcion": "Ciudad puerto declarada Patrimonio de la Humanidad por la UNESCO. Famosa por sus coloridos cerros, ascensores patrimoniales, arte callejero y una vibrante vida cultural. Sus escaleras y pasajes esconden galerías de arte, cafés bohemios y miradores con vista al Pacífico.",
+        "imagen": "valparaiso.jpg",
+        "categoria": "Cultura",
+        "precio_estimado": 15000,
+        "puntuacion": 4.6,
+        "destacado": true,
+        "actividades": ["Recorrido en ascensores", "Arte callejero", "Gastronomía", "Museos"]
+    },
+    {
+        "id": 4,
+        "nombre": "Isla de Pascua (Rapa Nui)",
+        "region": "Valparaíso",
+        "descripcion": "La isla habitada más remota del mundo, hogar de los misteriosos moáis. Esta joya del Pacífico combina arqueología fascinante con playas de arena blanca, volcanes y una cultura polinésica viva que se manifiesta en danzas, tallados y la lengua rapanui.",
+        "imagen": "isla_de_pascua.jpg",
+        "categoria": "Cultura",
+        "precio_estimado": 120000,
+        "puntuacion": 4.9,
+        "destacado": false,
+        "actividades": ["Visita a moáis", "Buceo", "Senderismo volcánico", "Cultura rapanui"]
+    },
+    {
+        "id": 5,
+        "nombre": "Lago General Carrera",
+        "region": "Aysén",
+        "descripcion": "El lago más grande de Chile y segundo de Sudamérica alberga las famosas Catedrales de Mármol, formaciones rocosas esculpidas durante miles de años por el agua turquesa del lago. Sus cavernas y capillas de mármol crean un espectáculo visual único en el mundo.",
+        "imagen": "lago_general_carrera.jpg",
+        "categoria": "Naturaleza",
+        "precio_estimado": 55000,
+        "puntuacion": 4.7,
+        "destacado": false,
+        "actividades": ["Navegación", "Kayak en cuevas", "Pesca con mosca", "Fotografía"]
+    },
+    {
+        "id": 6,
+        "nombre": "Chiloé",
+        "region": "Los Lagos",
+        "descripcion": "Archipiélago mágico donde la mitología se entrelaza con la vida cotidiana. Sus iglesias de madera, declaradas Patrimonio de la Humanidad, sus palafitos coloridos sobre el agua y su gastronomía única basada en el curanto hacen de Chiloé un destino imperdible.",
+        "imagen": "valparaiso.jpg",
+        "categoria": "Cultura",
+        "precio_estimado": 25000,
+        "puntuacion": 4.5,
+        "destacado": false,
+        "actividades": ["Iglesias patrimoniales", "Curanto", "Mitología chilota", "Naturaleza"]
+    }
+]

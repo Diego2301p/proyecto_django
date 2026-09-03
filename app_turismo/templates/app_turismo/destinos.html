@@ -1,0 +1,100 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{# ============================================================ #}
+{# destinos.html - Listado de destinos turísticos con filtros    #}
+{# Extiende de base.html (herencia de plantillas - Requisito 4.3)#}
+{# ============================================================ #}
+
+{% block titulo %}{{ titulo }} - Chile Descubre{% endblock %}
+{% block nav_turismo %}active{% endblock %}
+
+{% block content %}
+
+{# === ENCABEZADO DE SECCIÓN === #}
+<section class="hero-section">
+    <div class="container text-center">
+        <h1>🏔️ {{ titulo }}</h1>
+        <p class="lead">
+            Mostrando {{ total_mostrados }} de {{ total_general }} destinos turísticos
+        </p>
+    </div>
+</section>
+
+<div class="container">
+
+    {# === BREADCRUMB === #}
+    <nav class="breadcrumb-custom" aria-label="breadcrumb">
+        <ol class="breadcrumb mb-0">
+            <li class="breadcrumb-item"><a href="{% url 'turismo_inicio' %}">Inicio</a></li>
+            <li class="breadcrumb-item active" aria-current="page">Destinos</li>
+        </ol>
+    </nav>
+
+    {# === FILTROS POR CATEGORÍA === #}
+    <div class="filter-section">
+        <strong>🔍 Filtrar por categoría:</strong>
+        <div class="mt-2">
+            <a href="{% url 'turismo_destinos' %}" 
+               class="btn btn-outline-secondary filter-btn {% if not categoria_actual %}active{% endif %}">
+                Todas
+            </a>
+            {% for cat in categorias %}
+            <a href="{% url 'turismo_destinos' %}?categoria={{ cat }}" 
+               class="btn btn-outline-secondary filter-btn {% if categoria_actual == cat %}active{% endif %}">
+                {{ cat }}
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+
+    {# === LISTADO DE DESTINOS === #}
+    {% if hay_resultados %}
+    <div class="row g-4 mb-5">
+        {% for destino in destinos %}
+        <div class="col-md-4">
+            <div class="card">
+                {# Imagen local del destino (Requisito 5.1 y 5.2) #}
+                <img src="{% static 'img/' %}{{ destino.imagen }}" 
+                     class="card-img-top" 
+                     alt="Imagen de {{ destino.nombre }}">
+                <div class="card-body">
+                    <h5 class="card-title">{{ destino.nombre }}</h5>
+                    <p class="text-muted mb-1">📍 {{ destino.region }}</p>
+                    <p class="card-text">
+                        {{ destino.descripcion|truncatewords:20 }}
+                    </p>
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="badge badge-turismo">{{ destino.categoria }}</span>
+                        <span class="precio-tag">${{ destino.precio_formateado }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                        <span class="rating">⭐ {{ destino.puntuacion }}</span>
+                        <small class="text-muted">{{ destino.num_actividades }} actividades</small>
+                    </div>
+                    {% if destino.destacado %}
+                    <span class="badge bg-warning text-dark mb-2">⭐ Destacado</span>
+                    {% endif %}
+                    <a href="{% url 'turismo_detalle' destino.id %}" 
+                       class="btn btn-outline-primary btn-sm w-100">
+                        Ver detalles →
+                    </a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    {# Mensaje si no hay resultados para el filtro aplicado #}
+    <div class="not-found">
+        <h2>Sin resultados</h2>
+        <p>No se encontraron destinos para la categoría seleccionada.</p>
+        <a href="{% url 'turismo_destinos' %}" class="btn btn-primary">
+            Ver todos los destinos
+        </a>
+    </div>
+    {% endif %}
+
+</div>
+
+{% endblock %}

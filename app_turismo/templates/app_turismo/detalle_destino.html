@@ -1,0 +1,114 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{# ============================================================ #}
+{# detalle_destino.html - Detalle de un destino turístico        #}
+{# Extiende de base.html (herencia de plantillas - Requisito 4.3)#}
+{# ============================================================ #}
+
+{% block titulo %}{{ titulo }} - Chile Descubre{% endblock %}
+{% block nav_turismo %}active{% endblock %}
+
+{% block content %}
+
+{% if encontrado %}
+
+{# === ENCABEZADO DEL DESTINO === #}
+<section class="detail-header">
+    <div class="container">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb mb-2">
+                <li class="breadcrumb-item"><a href="{% url 'turismo_inicio' %}" class="text-white-50">Inicio</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'turismo_destinos' %}" class="text-white-50">Destinos</a></li>
+                <li class="breadcrumb-item active text-white" aria-current="page">{{ destino.nombre }}</li>
+            </ol>
+        </nav>
+        <h1>{{ destino.nombre }}</h1>
+        <p class="lead mb-0">📍 {{ destino.region }}</p>
+    </div>
+</section>
+
+<div class="container mb-5">
+    <div class="row g-4">
+        {# === IMAGEN DEL DESTINO === #}
+        <div class="col-lg-6">
+            <img src="{% static 'img/' %}{{ destino.imagen }}" 
+                 class="detail-img" 
+                 alt="Imagen de {{ destino.nombre }}">
+        </div>
+
+        {# === INFORMACIÓN PRINCIPAL === #}
+        <div class="col-lg-6">
+            <div class="detail-info">
+                <h3>Sobre este destino</h3>
+                <p>{{ destino.descripcion }}</p>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-6">
+                        <div class="stats-card">
+                            <span class="stats-number" style="font-size: 1.4rem;">{{ destino.categoria }}</span>
+                            <span class="stats-label">Categoría</span>
+                        </div>
+                    </div>
+                    <div class="col-6">
+                        <div class="stats-card">
+                            <span class="stats-number" style="font-size: 1.4rem;">⭐ {{ destino.puntuacion }}</span>
+                            <span class="stats-label">Puntuación</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <strong>💰 Precio estimado por persona:</strong>
+                    <span class="precio-tag ms-2">${{ destino.precio_formateado }} CLP</span>
+                </div>
+
+                {% if destino.destacado %}
+                <div class="alert alert-success">
+                    ⭐ Este destino está marcado como <strong>destacado</strong> por nuestro equipo editorial.
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    {# === ACTIVIDADES DISPONIBLES === #}
+    {% if destino.actividades %}
+    <div class="row mt-4">
+        <div class="col-12">
+            <div class="detail-info">
+                <h3>🎯 Actividades Disponibles</h3>
+                <ul class="actividades-list">
+                    {% for actividad in destino.actividades %}
+                    <li>{{ actividad }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    {# === BOTÓN VOLVER === #}
+    <div class="text-center mt-4">
+        <a href="{% url 'turismo_destinos' %}" class="btn btn-primary btn-lg">
+            ← Volver a Destinos
+        </a>
+    </div>
+</div>
+
+{% else %}
+
+{# === DESTINO NO ENCONTRADO === #}
+<div class="container">
+    <div class="not-found">
+        <h2>😕 Destino no encontrado</h2>
+        <p>El destino que buscas no existe en nuestra base de datos.</p>
+        <a href="{% url 'turismo_destinos' %}" class="btn btn-primary btn-lg">
+            ← Ver todos los destinos
+        </a>
+    </div>
+</div>
+
+{% endif %}
+
+{% endblock %}
