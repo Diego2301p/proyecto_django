@@ -1,0 +1,359 @@
+/* ============================================================
+   estilos.css - Estilos personalizados del proyecto Chile Descubre
+   
+   Se usa junto con Bootstrap 5 (instalado localmente) para
+   personalizar la apariencia del sitio informativo.
+   ============================================================ */
+
+/* Variables CSS para mantener consistencia de colores */
+:root {
+    --color-primario: #1a5276;      /* Azul oscuro - navbar y encabezados */
+    --color-secundario: #2e86c1;    /* Azul medio - acentos */
+    --color-acento: #e74c3c;        /* Rojo chileno - botones destacados */
+    --color-fondo: #f8f9fa;         /* Gris claro - fondo general */
+    --color-texto: #2c3e50;         /* Gris oscuro - texto principal */
+    --color-footer: #1a252f;        /* Casi negro - pie de página */
+    --color-turismo: #27ae60;       /* Verde - sección turismo */
+    --color-gastronomia: #e67e22;   /* Naranja - sección gastronomía */
+}
+
+/* ---- ESTILOS GENERALES ---- */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    color: var(--color-texto);
+    background-color: var(--color-fondo);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1;
+}
+
+/* ---- NAVBAR ---- */
+.navbar-custom {
+    background-color: var(--color-primario) !important;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+}
+
+.navbar-custom .navbar-brand {
+    font-weight: 700;
+    font-size: 1.4rem;
+    color: #ffffff !important;
+    letter-spacing: 0.5px;
+}
+
+.navbar-custom .navbar-brand .brand-icon {
+    margin-right: 8px;
+}
+
+.navbar-custom .nav-link {
+    color: rgba(255, 255, 255, 0.85) !important;
+    font-weight: 500;
+    transition: color 0.3s ease;
+    padding: 0.5rem 1rem;
+}
+
+.navbar-custom .nav-link:hover,
+.navbar-custom .nav-link.active {
+    color: #ffffff !important;
+}
+
+.navbar-custom .nav-link.active {
+    border-bottom: 2px solid var(--color-acento);
+}
+
+/* ---- HERO / BANNER ---- */
+.hero-section {
+    background: linear-gradient(135deg, var(--color-primario) 0%, var(--color-secundario) 100%);
+    color: white;
+    padding: 3rem 0;
+    margin-bottom: 2rem;
+}
+
+.hero-section h1 {
+    font-weight: 700;
+    font-size: 2.5rem;
+    margin-bottom: 1rem;
+}
+
+.hero-section p {
+    font-size: 1.15rem;
+    opacity: 0.9;
+}
+
+/* ---- TARJETAS (Cards) ---- */
+.card {
+    border: none;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    height: 100%;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.card-img-top {
+    height: 220px;
+    object-fit: cover;
+}
+
+.card-body {
+    padding: 1.25rem;
+}
+
+.card-title {
+    font-weight: 600;
+    color: var(--color-primario);
+    margin-bottom: 0.75rem;
+}
+
+/* ---- BADGES (Etiquetas) ---- */
+.badge-turismo {
+    background-color: var(--color-turismo);
+    color: white;
+}
+
+.badge-gastronomia {
+    background-color: var(--color-gastronomia);
+    color: white;
+}
+
+.badge-dificultad-baja {
+    background-color: #27ae60;
+    color: white;
+}
+
+.badge-dificultad-media {
+    background-color: #f39c12;
+    color: white;
+}
+
+.badge-dificultad-alta {
+    background-color: #e74c3c;
+    color: white;
+}
+
+/* ---- ESTADÍSTICAS ---- */
+.stats-card {
+    background: white;
+    border-radius: 12px;
+    padding: 1.5rem;
+    text-align: center;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+    transition: transform 0.3s ease;
+}
+
+.stats-card:hover {
+    transform: translateY(-3px);
+}
+
+.stats-card .stats-number {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--color-secundario);
+    display: block;
+}
+
+.stats-card .stats-label {
+    color: #7f8c8d;
+    font-size: 0.9rem;
+    margin-top: 0.25rem;
+}
+
+/* ---- FILTROS ---- */
+.filter-section {
+    background: white;
+    border-radius: 12px;
+    padding: 1.25rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.filter-btn {
+    border-radius: 20px;
+    padding: 0.4rem 1.2rem;
+    font-size: 0.9rem;
+    margin: 0.25rem;
+    transition: all 0.3s ease;
+}
+
+.filter-btn.active {
+    background-color: var(--color-secundario);
+    border-color: var(--color-secundario);
+    color: white;
+}
+
+/* ---- SECCIÓN DE DETALLE ---- */
+.detail-header {
+    background: linear-gradient(135deg, var(--color-primario) 0%, var(--color-secundario) 100%);
+    color: white;
+    padding: 2rem 0;
+    margin-bottom: 2rem;
+}
+
+.detail-img {
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    width: 100%;
+    max-height: 450px;
+    object-fit: cover;
+}
+
+.detail-info {
+    background: white;
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+}
+
+.detail-info h3 {
+    color: var(--color-primario);
+    font-weight: 600;
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--color-fondo);
+}
+
+/* ---- LISTA DE INGREDIENTES ---- */
+.ingredientes-list {
+    list-style: none;
+    padding: 0;
+}
+
+.ingredientes-list li {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #f0f0f0;
+    display: flex;
+    align-items: center;
+}
+
+.ingredientes-list li::before {
+    content: "🥄";
+    margin-right: 10px;
+}
+
+/* ---- LISTA DE ACTIVIDADES ---- */
+.actividades-list {
+    list-style: none;
+    padding: 0;
+}
+
+.actividades-list li {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid #f0f0f0;
+    display: flex;
+    align-items: center;
+}
+
+.actividades-list li::before {
+    content: "🏔️";
+    margin-right: 10px;
+}
+
+/* ---- FOOTER ---- */
+.footer-custom {
+    background-color: var(--color-footer);
+    color: rgba(255, 255, 255, 0.7);
+    padding: 2rem 0;
+    margin-top: 3rem;
+}
+
+.footer-custom h5 {
+    color: white;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+.footer-custom a {
+    color: rgba(255, 255, 255, 0.7);
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+.footer-custom a:hover {
+    color: white;
+}
+
+.footer-bottom {
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding-top: 1rem;
+    margin-top: 1.5rem;
+}
+
+/* ---- BREADCRUMB ---- */
+.breadcrumb-custom {
+    background: white;
+    border-radius: 8px;
+    padding: 0.75rem 1.25rem;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+    margin-bottom: 1.5rem;
+}
+
+/* ---- RESPONSIVE ---- */
+@media (max-width: 768px) {
+    .hero-section h1 {
+        font-size: 1.8rem;
+    }
+    
+    .hero-section {
+        padding: 2rem 0;
+    }
+    
+    .stats-card .stats-number {
+        font-size: 1.5rem;
+    }
+}
+
+/* ---- PUNTUACIÓN CON ESTRELLAS ---- */
+.rating {
+    color: #f1c40f;
+    font-size: 1.1rem;
+}
+
+.rating .text-muted {
+    color: #bdc3c7 !important;
+}
+
+/* ---- PRECIO ---- */
+.precio-tag {
+    background: linear-gradient(135deg, var(--color-turismo), #2ecc71);
+    color: white;
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    display: inline-block;
+}
+
+.precio-tag-gastro {
+    background: linear-gradient(135deg, var(--color-gastronomia), #e67e22);
+    color: white;
+    padding: 0.3rem 0.8rem;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    display: inline-block;
+}
+
+/* ---- SECCIÓN "NO ENCONTRADO" ---- */
+.not-found {
+    text-align: center;
+    padding: 4rem 2rem;
+}
+
+.not-found h2 {
+    color: var(--color-primario);
+    font-weight: 700;
+    margin-bottom: 1rem;
+}
+
+.not-found p {
+    color: #7f8c8d;
+    font-size: 1.1rem;
+}

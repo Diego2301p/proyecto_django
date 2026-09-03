@@ -1,0 +1,161 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Chile Descubre - Portal informativo sobre destinos turísticos y gastronomía típica chilena">
+    <title>{% block titulo %}Chile Descubre{% endblock %}</title>
+    
+    {# Bootstrap 5 CSS instalado localmente (NO CDN) - Requisito 4.1 #}
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    
+    {# Estilos personalizados del proyecto #}
+    <link rel="stylesheet" href="{% static 'css/estilos.css' %}">
+
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+
+    {# ============================================================ #}
+    {# BARRA DE NAVEGACIÓN GLOBAL (Requisito 4.2 y 4.4)            #}
+    {# Permite acceder a AMBAS aplicaciones desde CUALQUIER página  #}
+    {# ============================================================ #}
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-custom">
+        <div class="container">
+            {# Logo/Marca del sitio #}
+            <a class="navbar-brand" href="{% url 'turismo_inicio' %}">
+                <span class="brand-icon">🇨🇱</span>Chile Descubre
+            </a>
+            
+            {# Botón hamburguesa para móviles #}
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" 
+                    data-bs-target="#navbarNav" aria-controls="navbarNav" 
+                    aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            
+            {# Enlaces de navegación #}
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    {# Enlace a Inicio #}
+                    <li class="nav-item">
+                        <a class="nav-link {% block nav_inicio %}{% endblock %}" 
+                           href="{% url 'turismo_inicio' %}">
+                            🏠 Inicio
+                        </a>
+                    </li>
+                    
+                    {# === ENLACES APP TURISMO === #}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle {% block nav_turismo %}{% endblock %}" 
+                           href="#" role="button" data-bs-toggle="dropdown" 
+                           aria-expanded="false">
+                            🏔️ Turismo
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a class="dropdown-item" href="{% url 'turismo_inicio' %}">
+                                    Presentación
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="{% url 'turismo_destinos' %}">
+                                    Todos los Destinos
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                    
+                    {# === ENLACES APP GASTRONOMÍA === #}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle {% block nav_gastronomia %}{% endblock %}" 
+                           href="#" role="button" data-bs-toggle="dropdown" 
+                           aria-expanded="false">
+                            🍽️ Gastronomía
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li>
+                                <a class="dropdown-item" href="{% url 'gastronomia_inicio' %}">
+                                    Presentación
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="{% url 'gastronomia_platos' %}">
+                                    Todos los Platos
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    {# ============================================================ #}
+    {# CONTENIDO PRINCIPAL                                          #}
+    {# Las plantillas hijas extienden este bloque (Requisito 4.3)   #}
+    {# ============================================================ #}
+    <main>
+        {% block content %}
+        {# Contenido por defecto si ninguna plantilla hija lo sobreescribe #}
+        <div class="container mt-4">
+            <p>Bienvenido a Chile Descubre</p>
+        </div>
+        {% endblock %}
+    </main>
+
+    {# ============================================================ #}
+    {# PIE DE PÁGINA (Footer) - Requisito 4.2                      #}
+    {# ============================================================ #}
+    <footer class="footer-custom">
+        <div class="container">
+            <div class="row">
+                {# Columna: Sobre el proyecto #}
+                <div class="col-md-4 mb-3">
+                    <h5>🇨🇱 Chile Descubre</h5>
+                    <p>
+                        Portal informativo dedicado a mostrar la riqueza 
+                        turística y gastronómica de Chile. Proyecto académico 
+                        desarrollado con Django.
+                    </p>
+                </div>
+                
+                {# Columna: Enlaces rápidos #}
+                <div class="col-md-4 mb-3">
+                    <h5>Enlaces Rápidos</h5>
+                    <ul class="list-unstyled">
+                        <li><a href="{% url 'turismo_inicio' %}">🏠 Inicio</a></li>
+                        <li><a href="{% url 'turismo_destinos' %}">🏔️ Destinos Turísticos</a></li>
+                        <li><a href="{% url 'gastronomia_platos' %}">🍽️ Platos Típicos</a></li>
+                    </ul>
+                </div>
+                
+                {# Columna: Información técnica #}
+                <div class="col-md-4 mb-3">
+                    <h5>Información del Proyecto</h5>
+                    <ul class="list-unstyled">
+                        <li>📚 Framework: Django</li>
+                        <li>🎨 Diseño: Bootstrap 5 (local)</li>
+                        <li>📦 Datos: Archivos JSON</li>
+                        <li>🐍 Lenguaje: Python</li>
+                    </ul>
+                </div>
+            </div>
+            
+            {# Línea inferior del footer #}
+            <div class="footer-bottom text-center">
+                <small>
+                    &copy; 2025 Chile Descubre - Proyecto Académico | 
+                    Desarrollado con Django y Bootstrap 5
+                </small>
+            </div>
+        </div>
+    </footer>
+
+    {# Bootstrap 5 JS instalado localmente (NO CDN) - Requisito 4.1 #}
+    <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+    
+    {% block extra_js %}{% endblock %}
+</body>
+</html>
