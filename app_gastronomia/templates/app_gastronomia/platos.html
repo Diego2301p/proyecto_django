@@ -49,6 +49,23 @@
         </div>
     </div>
 
+    {# === BOTONES DE ACCIÓN CRUD === #}
+    {# Estos botones serán funcionales en la siguiente evaluación #}
+    <div class="d-flex gap-2 mb-4 flex-wrap">
+        <a href="#" id="btn-agregar-plato" class="btn btn-success">
+            ➕ Agregar Plato
+        </a>
+        <a href="#" id="btn-buscar-plato" class="btn btn-primary">
+            🔍 Buscar Plato
+        </a>
+        <a href="#" id="btn-modificar-plato" class="btn btn-warning">
+            ✏️ Modificar Plato
+        </a>
+        <a href="#" id="btn-eliminar-plato" class="btn btn-danger">
+            🗑️ Eliminar Plato
+        </a>
+    </div>
+
     {# === LISTADO DE PLATOS === #}
     {% if hay_resultados %}
     <div class="row g-4 mb-5">
@@ -85,9 +102,13 @@
                         {% endif %}
                     </div>
                     <a href="{% url 'gastronomia_detalle' plato.id %}" 
-                       class="btn btn-outline-warning btn-sm w-100">
+                       class="btn btn-outline-warning btn-sm w-100 mb-2">
                         Ver receta completa →
                     </a>
+                    <div class="d-flex gap-1">
+                        <a href="#" id="btn-mod-{{ plato.id }}" class="btn btn-warning btn-sm flex-fill">✏️ Modificar</a>
+                        <a href="#" id="btn-del-{{ plato.id }}" class="btn btn-danger btn-sm flex-fill">🗑️ Eliminar</a>
+                    </div>
                 </div>
             </div>
         </div>
