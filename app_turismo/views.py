@@ -1,9 +1,9 @@
 """
 app_turismo/views.py - Vistas de la aplicación de destinos turísticos de Chile.
 
-Contiene las vistas funcionales que leen datos desde destinos.json,
-los procesan usando funciones auxiliares y los envían a las plantillas
-mediante el diccionario de contexto.
+Contiene las vistas funcionales que leen datos desde la base de datos
+usando el ORM de Django, los procesan usando funciones auxiliares y
+los envían a las plantillas mediante el diccionario de contexto.
 
 Librería externa utilizada: humanize
 Se usa para formatear números (precios) de forma legible para humanos,
@@ -11,47 +11,56 @@ por ejemplo: 45000 → "45.000" (formato chileno). Esto mejora la
 presentación de datos numéricos en la interfaz.
 """
 
-import json
-import os
 from django.shortcuts import render
-from django.conf import settings
 # humanize: librería externa para formatear números y fechas de forma
 # legible para humanos (ej: intcomma convierte 45000 → "45,000")
 import humanize
+
+from .models import DestinoTuristico
 
 
 # ============================================================
 # FUNCIONES AUXILIARES (Requisito 2.2)
 # ============================================================
 
-def cargar_destinos():
+def obtener_destinos():
     """
-    Lee y retorna la lista de destinos turísticos desde el archivo JSON.
-    Usa try/except para manejar errores si el archivo no existe o está
-    mal formado (Requisito 8: manejo de errores).
+    Retorna todos los destinos turísticos desde la base de datos.
+    Usa try/except para manejar errores (Requisito 8: manejo de errores).
 
     Returns:
-        list: Lista de diccionarios con los datos de destinos, o lista
-              vacía si ocurre un error.
+        QuerySet: Todos los destinos turísticos, o lista vacía si hay error.
     """
-    # Construimos la ruta absoluta al archivo JSON usando os.path
-    ruta_json = os.path.join(
-        settings.BASE_DIR, 'app_turismo', 'data', 'destinos.json'
-    )
     try:
-        # Abrimos el archivo con codificación UTF-8 para soportar
-        # caracteres especiales (tildes, eñes)
-        with open(ruta_json, 'r', encoding='utf-8') as archivo:
-            datos = json.load(archivo)  # Deserializa el JSON a Python
-        return datos
-    except FileNotFoundError:
-        # El archivo JSON no existe en la ruta esperada
-        print(f"[ERROR] No se encontró el archivo: {ruta_json}")
+        return list(DestinoTuristico.objects.all())
+    except Exception as e:
+        print(f"[ERROR] No se pudieron cargar los destinos: {e}")
         return []
-    except json.JSONDecodeError:
-        # El archivo existe pero tiene formato JSON inválido
-        print(f"[ERROR] El archivo {ruta_json} no tiene formato JSON válido")
-        return []
+
+
+def destino_a_dict(destino):
+    """
+    Convierte un objeto DestinoTuristico a un diccionario compatible
+    con las plantillas existentes.
+
+    Args:
+        destino (DestinoTuristico): Instancia del modelo.
+
+    Returns:
+        dict: Diccionario con los datos del destino.
+    """
+    return {
+        'id': destino.id,
+        'nombre': destino.nombre,
+        'region': destino.region,
+        'descripcion': destino.descripcion,
+        'imagen': destino.imagen,
+        'categoria': destino.categoria,
+        'precio_estimado': destino.precio_estimado,
+        'puntuacion': destino.puntuacion,
+        'destacado': destino.destacado,
+        'actividades': destino.get_actividades_lista(),
+    }
 
 
 def filtrar_destinos_por_categoria(destinos, categoria):
@@ -61,7 +70,7 @@ def filtrar_destinos_por_categoria(destinos, categoria):
     (Requisitos 2.1 y 2.2).
 
     Args:
-        destinos (list): Lista completa de destinos.
+        destinos (list): Lista completa de destinos (dicts).
         categoria (str): Categoría a filtrar (ej: "Naturaleza", "Cultura").
 
     Returns:
@@ -81,7 +90,7 @@ def obtener_categorias_unicas(destinos):
     Útil para generar filtros dinámicos en la interfaz.
 
     Args:
-        destinos (list): Lista completa de destinos.
+        destinos (list): Lista completa de destinos (dicts).
 
     Returns:
         list: Lista ordenada de categorías únicas.
@@ -101,7 +110,7 @@ def calcular_estadisticas(destinos):
     y estructuras de control (Requisito 2.1).
 
     Args:
-        destinos (list): Lista completa de destinos.
+        destinos (list): Lista completa de destinos (dicts).
 
     Returns:
         dict: Diccionario con estadísticas calculadas.
@@ -169,7 +178,7 @@ def obtener_destinos_destacados(destinos):
     Demuestra uso de bool y operadores de comparación.
 
     Args:
-        destinos (list): Lista completa de destinos.
+        destinos (list): Lista completa de destinos (dicts).
 
     Returns:
         list: Destinos donde 'destacado' es True.
@@ -198,13 +207,14 @@ def inicio(request):
     Es la página principal a la que redirige la ruta '/'.
 
     Demuestra:
-    - Lectura de JSON (cargar_destinos)
+    - Lectura desde la base de datos (ORM)
     - Procesamiento de datos (funciones auxiliares)
     - Envío de contexto a la plantilla con render()
     - Uso de if/elif/else para determinar mensajes dinámicos
     """
-    # Leer datos desde el archivo JSON
-    destinos = cargar_destinos()
+    # Leer datos desde la base de datos
+    destinos_obj = obtener_destinos()
+    destinos = [destino_a_dict(d) for d in destinos_obj]
 
     # Procesar datos usando funciones auxiliares
     estadisticas = calcular_estadisticas(destinos)
@@ -244,8 +254,9 @@ def destinos(request):
     - Filtrado condicional de datos
     - Bucles y procesamiento antes de enviar a la plantilla
     """
-    # Leer todos los destinos desde el JSON
-    todos_los_destinos = cargar_destinos()
+    # Leer todos los destinos desde la base de datos
+    destinos_obj = obtener_destinos()
+    todos_los_destinos = [destino_a_dict(d) for d in destinos_obj]
 
     # Obtener parámetro de filtro desde la URL (ej: ?categoria=Naturaleza)
     categoria_filtro = request.GET.get('categoria', '')  # str, vacío si no viene
@@ -298,19 +309,20 @@ def detalle_destino(request, destino_id):
     Recibe el ID del destino como parámetro de la URL.
 
     Demuestra:
-    - Búsqueda por ID en una lista de diccionarios
+    - Búsqueda por ID usando el ORM
     - Manejo de caso "no encontrado"
     - Uso de while para buscar en la lista
     """
-    destinos = cargar_destinos()
+    destinos_obj = obtener_destinos()
+    destinos_lista = [destino_a_dict(d) for d in destinos_obj]
 
     # Búsqueda del destino por ID usando while (Requisito 2.2)
     destino_encontrado = None
     indice = 0  # int: índice para recorrer la lista
 
-    while indice < len(destinos):
-        if destinos[indice].get('id') == destino_id:
-            destino_encontrado = destinos[indice].copy()
+    while indice < len(destinos_lista):
+        if destinos_lista[indice].get('id') == destino_id:
+            destino_encontrado = destinos_lista[indice].copy()
             break  # Salir del while al encontrar el destino
         indice += 1  # Operador aritmético: incremento
 

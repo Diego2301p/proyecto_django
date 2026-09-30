@@ -1,8 +1,9 @@
 """
 app_gastronomia/views.py - Vistas de la aplicación de platos típicos chilenos.
 
-Contiene las vistas funcionales que leen datos desde platos.json,
-los procesan usando funciones auxiliares y los envían a las plantillas.
+Contiene las vistas funcionales que leen datos desde la base de datos
+usando el ORM de Django, los procesan usando funciones auxiliares y
+los envían a las plantillas.
 La temática es claramente distinta a app_turismo (gastronomía vs. turismo).
 
 Librería externa utilizada: humanize
@@ -10,40 +11,56 @@ Se usa para formatear precios y tiempos de preparación de forma
 legible para el usuario.
 """
 
-import json
-import os
 from django.shortcuts import render
-from django.conf import settings
 # humanize: librería externa para formateo legible de números
 import humanize
+
+from .models import PlatoTipico
 
 
 # ============================================================
 # FUNCIONES AUXILIARES (Requisito 2.2)
 # ============================================================
 
-def cargar_platos():
+def obtener_platos():
     """
-    Lee y retorna la lista de platos típicos desde el archivo JSON.
+    Retorna todos los platos típicos desde la base de datos.
     Maneja errores con try/except (Requisito 8).
 
     Returns:
-        list: Lista de diccionarios con los datos de platos, o lista
-              vacía si ocurre un error.
+        list: Lista de instancias PlatoTipico, o lista vacía si hay error.
     """
-    ruta_json = os.path.join(
-        settings.BASE_DIR, 'app_gastronomia', 'data', 'platos.json'
-    )
     try:
-        with open(ruta_json, 'r', encoding='utf-8') as archivo:
-            datos = json.load(archivo)
-        return datos
-    except FileNotFoundError:
-        print(f"[ERROR] No se encontró el archivo: {ruta_json}")
+        return list(PlatoTipico.objects.all())
+    except Exception as e:
+        print(f"[ERROR] No se pudieron cargar los platos: {e}")
         return []
-    except json.JSONDecodeError:
-        print(f"[ERROR] El archivo {ruta_json} no tiene formato JSON válido")
-        return []
+
+
+def plato_a_dict(plato):
+    """
+    Convierte un objeto PlatoTipico a un diccionario compatible
+    con las plantillas existentes.
+
+    Args:
+        plato (PlatoTipico): Instancia del modelo.
+
+    Returns:
+        dict: Diccionario con los datos del plato.
+    """
+    return {
+        'id': plato.id,
+        'nombre': plato.nombre,
+        'region': plato.region,
+        'descripcion': plato.descripcion,
+        'imagen': plato.imagen,
+        'dificultad': plato.dificultad,
+        'tiempo_preparacion': plato.tiempo_preparacion,
+        'porciones': plato.porciones,
+        'es_vegetariano': plato.es_vegetariano,
+        'precio_referencia': plato.precio_referencia,
+        'ingredientes': plato.get_ingredientes_lista(),
+    }
 
 
 def filtrar_por_dificultad(platos, dificultad):
@@ -52,7 +69,7 @@ def filtrar_por_dificultad(platos, dificultad):
     Usa bucle for y comparación de strings (Requisitos 2.1, 2.2).
 
     Args:
-        platos (list): Lista completa de platos.
+        platos (list): Lista completa de platos (dicts).
         dificultad (str): Nivel de dificultad ("Baja", "Media", "Alta").
 
     Returns:
@@ -70,7 +87,7 @@ def obtener_niveles_dificultad(platos):
     Extrae los niveles de dificultad únicos de la lista de platos.
 
     Args:
-        platos (list): Lista completa de platos.
+        platos (list): Lista completa de platos (dicts).
 
     Returns:
         list: Lista de niveles de dificultad únicos.
@@ -91,7 +108,7 @@ def calcular_estadisticas_gastronomia(platos):
     Demuestra operadores aritméticos, lógicos y de comparación (Req 2.1).
 
     Args:
-        platos (list): Lista completa de platos.
+        platos (list): Lista completa de platos (dicts).
 
     Returns:
         dict: Diccionario con estadísticas calculadas.
@@ -172,7 +189,7 @@ def procesar_platos_para_vista(platos):
     Agrega precio formateado, tiempo legible y conteo de ingredientes.
 
     Args:
-        platos (list): Lista de platos sin procesar.
+        platos (list): Lista de platos (dicts) sin procesar.
 
     Returns:
         list: Lista de platos con campos adicionales formateados.
@@ -206,12 +223,14 @@ def inicio_gastronomia(request):
     Muestra un resumen de platos y estadísticas.
 
     Demuestra:
-    - Lectura de JSON con cargar_platos()
+    - Lectura desde la base de datos (ORM)
     - Procesamiento con funciones auxiliares
     - Contexto enviado a la plantilla
     - Estructuras if/elif/else para mensajes dinámicos
     """
-    platos = cargar_platos()
+    platos_obj = obtener_platos()
+    platos = [plato_a_dict(p) for p in platos_obj]
+
     estadisticas = calcular_estadisticas_gastronomia(platos)
     platos_procesados = procesar_platos_para_vista(platos)
 
@@ -257,7 +276,8 @@ def platos_tipicos(request):
     - Filtrado condicional con función auxiliar
     - Procesamiento con bucles antes de enviar al template
     """
-    todos_los_platos = cargar_platos()
+    platos_obj = obtener_platos()
+    todos_los_platos = [plato_a_dict(p) for p in platos_obj]
 
     # Leer parámetro de filtro desde la URL (ej: ?dificultad=Baja)
     filtro_dificultad = request.GET.get('dificultad', '')  # str
@@ -303,7 +323,8 @@ def detalle_plato(request, plato_id):
     - Búsqueda por ID con bucle while
     - Manejo del caso "no encontrado"
     """
-    platos = cargar_platos()
+    platos_obj = obtener_platos()
+    platos = [plato_a_dict(p) for p in platos_obj]
 
     # Búsqueda con while (Requisito 2.2)
     plato_encontrado = None

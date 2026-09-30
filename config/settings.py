@@ -2,13 +2,18 @@
 Django settings for config project.
 Proyecto: Chile Descubre - Sitio informativo sobre turismo y gastronomía chilena.
 
-Se eliminaron las dependencias de base de datos (admin, auth, sessions, contenttypes)
-para cumplir con el requisito de NO usar base de datos.
-Los datos se almacenan en archivos JSON dentro de cada aplicación.
+Migrado a Django ORM con MySQL como motor de base de datos.
+Se habilitan las apps de admin, auth, sessions y contenttypes
+para poder usar el panel de administración de Django.
+Las variables sensibles se leen desde un archivo .env usando python-dotenv.
 """
 
 from pathlib import Path
 import os
+from dotenv import load_dotenv
+
+# Cargar variables de entorno desde el archivo .env
+load_dotenv()
 
 # ============================================================
 # RUTAS BASE DEL PROYECTO
@@ -26,32 +31,40 @@ SECRET_KEY = 'django-insecure-aqm$ti%ux8%p5g7v0c@zxa2!v@7%@ddp@tx-s$rly+y=c_b3x-
 # Modo debug activado para desarrollo local
 DEBUG = True
 
-# Hosts permitidos (vacío permite localhost en modo DEBUG)
-ALLOWED_HOSTS = []
+# Hosts permitidos: incluir la IP fija de EC2 al desplegar
+# Ejemplo: ALLOWED_HOSTS = ['<TU_IP_FIJA>', 'localhost', '127.0.0.1']
+ALLOWED_HOSTS = ['*']
 
 
 # ============================================================
 # APLICACIONES INSTALADAS
 # ============================================================
-# Solo se incluyen las apps estrictamente necesarias para un proyecto
-# sin base de datos: staticfiles (para servir CSS/JS/imágenes) y
-# las dos apps propias del proyecto.
+# Se incluyen las apps de Django necesarias para admin, auth y
+# el sistema de contenidos, además de las apps propias.
 INSTALLED_APPS = [
-    'django.contrib.staticfiles',  # Necesario para {% static %} en templates
-    'app_turismo',                 # App de destinos turísticos de Chile
-    'app_gastronomia',             # App de platos típicos chilenos
+    'django.contrib.admin',         # Panel de administración de Django
+    'django.contrib.auth',          # Sistema de autenticación
+    'django.contrib.contenttypes',  # Framework de tipos de contenido
+    'django.contrib.sessions',      # Framework de sesiones
+    'django.contrib.messages',      # Framework de mensajes
+    'django.contrib.staticfiles',   # Necesario para {% static %} en templates
+    'app_turismo',                  # App de destinos turísticos de Chile
+    'app_gastronomia',              # App de platos típicos chilenos
 ]
 
 
 # ============================================================
 # MIDDLEWARE
 # ============================================================
-# Se eliminaron los middleware de sesión, autenticación y mensajes
-# ya que no usamos base de datos ni sistema de usuarios.
+# Se incluyen los middleware necesarios para admin, sesiones,
+# autenticación y mensajes.
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
@@ -76,7 +89,10 @@ TEMPLATES = [
         'APP_DIRS': True,                   # Busca en templates/ de cada app
         'OPTIONS': {
             'context_processors': [
+                'django.template.context_processors.debug',
                 'django.template.context_processors.request',
+                'django.contrib.auth.context_processors.auth',
+                'django.contrib.messages.context_processors.messages',
                 'django.template.context_processors.static',  # Para usar STATIC_URL en templates
             ],
         },
@@ -91,12 +107,42 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 
 # ============================================================
-# BASE DE DATOS - DESHABILITADA
+# BASE DE DATOS - MySQL
 # ============================================================
-# Este proyecto NO usa base de datos. Los datos se leen desde
-# archivos JSON. Se deja DATABASES vacío para evitar cualquier
-# dependencia con SQLite u otro motor.
-DATABASES = {}
+# Configuración de MySQL usando variables de entorno del archivo .env.
+# En EC2: crear la DB, usuario y contraseña según la guía.
+DATABASES = {
+    'default': {
+        'ENGINE': os.getenv('DB_ENGINE', 'django.db.backends.mysql'),
+        'NAME': os.getenv('DB_NAME', 'chile_descubre'),
+        'USER': os.getenv('DB_USER', 'user_chile'),
+        'PASSWORD': os.getenv('DB_PASSWORD', ''),
+        'HOST': os.getenv('DB_HOST', 'localhost'),
+        'PORT': os.getenv('DB_PORT', '3306'),
+        'OPTIONS': {
+            'charset': 'utf8mb4',
+        },
+    }
+}
+
+
+# ============================================================
+# VALIDACIÓN DE CONTRASEÑAS
+# ============================================================
+AUTH_PASSWORD_VALIDATORS = [
+    {
+        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+    },
+]
 
 
 # ============================================================
