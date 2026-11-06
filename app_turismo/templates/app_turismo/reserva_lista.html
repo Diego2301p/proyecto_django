@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% block titulo %}Reservas Turísticas{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2 class="mb-0">📅 Reservas Turísticas</h2>
+        <a href="{% url 'turismo_reserva_crear' %}" class="btn btn-warning">+ Nueva Reserva</a>
+    </div>
+
+    <form method="get" class="row g-2 mb-3">
+        <div class="col-md-6">
+            <input type="text" name="q" value="{{ query }}" class="form-control" placeholder="Buscar por destino, usuario o estado...">
+        </div>
+        <div class="col-auto"><button class="btn btn-primary">🔍 Buscar</button></div>
+        {% if query %}<div class="col-auto"><a href="{% url 'turismo_reserva_lista' %}" class="btn btn-outline-secondary">Limpiar</a></div>{% endif %}
+    </form>
+    <p class="text-muted small">{{ total }} reserva(s){% if query %} para "{{ query }}"{% endif %}.</p>
+
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class="table-dark">
+                <tr><th>#</th><th>Destino</th><th>Experiencia gastronómica</th><th>Registrada por</th><th>Fecha</th><th>Personas</th><th>Total (CLP)</th><th>Estado</th><th class="text-end">Acciones</th></tr>
+            </thead>
+            <tbody>
+                {% for item in reservas %}
+                {% with r=item.objeto %}
+                <tr>
+                    <td>{{ r.id }}</td>
+                    <td>{{ r.destino.nombre }}</td>
+                    <td>{{ r.plato.nombre|default:"—" }}</td>
+                    <td>{{ r.usuario.username }}</td>
+                    <td>{{ r.fecha_reserva|date:"d/m/Y" }}</td>
+                    <td>{{ r.num_personas }}</td>
+                    <td>${{ item.costo_formateado }}</td>
+                    <td>
+                        {% if r.estado == 'Confirmada' %}<span class="badge bg-success">{{ r.estado }}</span>
+                        {% elif r.estado == 'Cancelada' %}<span class="badge bg-danger">{{ r.estado }}</span>
+                        {% elif r.estado == 'Completada' %}<span class="badge bg-primary">{{ r.estado }}</span>
+                        {% else %}<span class="badge bg-warning text-dark">{{ r.estado }}</span>{% endif %}
+                    </td>
+                    <td class="text-end text-nowrap">
+                        <a href="{% url 'turismo_reserva_detalle' r.id %}" class="btn btn-sm btn-outline-secondary">👁️ Ver</a>
+                        {% if puede_mantenedores %}
+                        <a href="{% url 'turismo_reserva_editar' r.id %}" class="btn btn-sm btn-outline-primary">✏️ Editar</a>
+                        {% endif %}
+                        {% if es_admin %}
+                        <a href="{% url 'turismo_reserva_eliminar' r.id %}" class="btn btn-sm btn-outline-danger">🗑️ Eliminar</a>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endwith %}
+                {% empty %}
+                <tr><td colspan="9" class="text-center text-muted py-4">No se encontraron reservas.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+

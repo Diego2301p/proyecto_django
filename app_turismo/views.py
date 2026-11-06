@@ -11,12 +11,17 @@ por ejemplo: 45000 → "45.000" (formato chileno). Esto mejora la
 presentación de datos numéricos en la interfaz.
 """
 
-from django.shortcuts import render
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from django.db.models import Q
 # humanize: librería externa para formatear números y fechas de forma
 # legible para humanos (ej: intcomma convierte 45000 → "45,000")
 import humanize
 
-from .models import DestinoTuristico
+from .models import DestinoTuristico, ReservaTuristica
+from .forms import DestinoTuristicoForm, ReservaTuristicaForm
+from accounts.decorators import grupo_requerido
 
 
 # ============================================================
@@ -345,3 +350,220 @@ def detalle_destino(request, destino_id):
     }
 
     return render(request, 'app_turismo/detalle_destino.html', contexto)
+
+
+# ============================================================
+# VISTAS CRUD - MANTENEDOR DESTINOS TURÍSTICOS
+# ============================================================
+
+@login_required(login_url='accounts_login')
+@grupo_requerido('Administrador', 'Supervisor')
+def destino_lista(request):
+    """
+    Lista todos los destinos turísticos con búsqueda.
+    Acceso: Administrador y Supervisor.
+    """
+    query = request.GET.get('q', '')
+    if query:
+        destinos_qs = DestinoTuristico.objects.filter(
+            Q(nombre__icontains=query) |
+            Q(region__icontains=query) |
+            Q(categoria__icontains=query)
+        )
+    else:
+        destinos_qs = DestinoTuristico.objects.all()
+
+    destinos_procesados = []
+    for destino in destinos_qs:
+        destinos_procesados.append({
+            'objeto': destino,
+            'precio_formateado': formatear_precio(destino.precio_estimado),
+        })
+
+    contexto = {
+        'titulo': 'Mantenedor de Destinos Turísticos',
+        'destinos': destinos_procesados,
+        'query': query,
+        'total': len(destinos_procesados),
+    }
+    return render(request, 'app_turismo/destino_lista.html', contexto)
+
+
+@login_required(login_url='accounts_login')
+@grupo_requerido('Administrador', 'Supervisor')
+def destino_crear(request):
+    """Crea un nuevo destino turístico."""
+    if request.method == 'POST':
+        form = DestinoTuristicoForm(request.POST)
+        if form.is_valid():
+            destino = form.save()
+            messages.success(request, f'Destino "{destino.nombre}" creado exitosamente.')
+            return redirect('turismo_destino_lista')
+    else:
+        form = DestinoTuristicoForm()
+
+    contexto = {
+        'titulo': 'Crear Destino Turístico',
+        'form': form,
+        'accion': 'Crear',
+    }
+    return render(request, 'app_turismo/destino_form.html', contexto)
+
+
+@login_required(login_url='accounts_login')
+@grupo_requerido('Administrador', 'Supervisor')
+def destino_editar(request, destino_id):
+    """Edita un destino turístico existente."""
+    destino = get_object_or_404(DestinoTuristico, pk=destino_id)
+    if request.method == 'POST':
+        form = DestinoTuristicoForm(request.POST, instance=destino)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f'Destino "{destino.nombre}" actualizado exitosamente.')
+            return redirect('turismo_destino_lista')
+    else:
+        form = DestinoTuristicoForm(instance=destino)
+
+    contexto = {
+        'titulo': f'Editar Destino: {destino.nombre}',
+        'form': form,
+        'accion': 'Actualizar',
+        'destino': destino,
+    }
+    return render(request, 'app_turismo/destino_form.html', contexto)
+
+
+@login_required(login_url='accounts_login')
+@grupo_requerido('Administrador')
+def destino_eliminar(request, destino_id):
+    """Elimina un destino turístico."""
+    destino = get_object_or_404(DestinoTuristico, pk=destino_id)
+    if request.method == 'POST':
+        nombre = destino.nombre
+        destino.delete()
+        messages.success(request, f'Destino "{nombre}" eliminado exitosamente.')
+        return redirect('turismo_destino_lista')
+
+    contexto = {
+        'titulo': f'Eliminar Destino: {destino.nombre}',
+        'destino': destino,
+    }
+    return render(request, 'app_turismo/destino_eliminar.html', contexto)
+
+
+# ============================================================
+# VISTAS CRUD - TRANSACCIÓN: RESERVAS TURÍSTICAS
+# ============================================================
+
+@login_required(login_url='accounts_login')
+@grupo_requerido('Administrador', 'Supervisor', 'Administrativo')
+def reserva_lista(request):
+    """
+    Lista todas las reservas turísticas con búsqueda.
+    Acceso: todos los perfiles.
+    """
+    query = request.GET.get('q', '')
+    reservas = ReservaTuristica.objects.select_related(
+        'usuario', 'destino', 'plato'
+    )
+    if query:
+        reservas = reservas.filter(
+            Q(destino__nombre__icontains=query) |
+            Q(usuario__username__icontains=query) |
+            Q(estado__icontains=query)
+        )
+
+    reservas_procesadas = []
+    for reserva in reservas:
+        reservas_procesadas.append({
+            'objeto': reserva,
+            'costo_formateado': humanize.intcomma(reserva.costo_total()),
+        })
+
+    contexto = {
+        'titulo': 'Gestión de Reservas Turísticas',
+        'reservas': reservas_procesadas,
+        'query': query,
+        'total': len(reservas_procesadas),
+    }
+    return render(request, 'app_turismo/reserva_lista.html', contexto)
+
+
+@login_required(login_url='accounts_login')
+@grupo_requerido('Administrador', 'Supervisor', 'Administrativo')
+def reserva_crear(request):
+    """Crea una nueva reserva turística (transacción operacional)."""
+    if request.method == 'POST':
+        form = ReservaTuristicaForm(request.POST)
+        if form.is_valid():
+            reserva = form.save(commit=False)
+            reserva.usuario = request.user
+            reserva.save()
+            messages.success(request, f'Reserva #{reserva.id} creada exitosamente.')
+            return redirect('turismo_reserva_lista')
+    else:
+        form = ReservaTuristicaForm()
+
+    contexto = {
+        'titulo': 'Crear Reserva Turística',
+        'form': form,
+        'accion': 'Crear',
+    }
+    return render(request, 'app_turismo/reserva_form.html', contexto)
+
+
+@login_required(login_url='accounts_login')
+@grupo_requerido('Administrador', 'Supervisor', 'Administrativo')
+def reserva_detalle(request, reserva_id):
+    """Muestra el detalle de una reserva turística."""
+    reserva = get_object_or_404(
+        ReservaTuristica.objects.select_related('usuario', 'destino', 'plato'),
+        pk=reserva_id
+    )
+    contexto = {
+        'titulo': f'Reserva #{reserva.id}',
+        'reserva': reserva,
+        'costo_formateado': humanize.intcomma(reserva.costo_total()),
+    }
+    return render(request, 'app_turismo/reserva_detalle.html', contexto)
+
+
+@login_required(login_url='accounts_login')
+@grupo_requerido('Administrador', 'Supervisor')
+def reserva_editar(request, reserva_id):
+    """Edita una reserva existente."""
+    reserva = get_object_or_404(ReservaTuristica, pk=reserva_id)
+    if request.method == 'POST':
+        form = ReservaTuristicaForm(request.POST, instance=reserva)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f'Reserva #{reserva.id} actualizada exitosamente.')
+            return redirect('turismo_reserva_lista')
+    else:
+        form = ReservaTuristicaForm(instance=reserva)
+
+    contexto = {
+        'titulo': f'Editar Reserva #{reserva.id}',
+        'form': form,
+        'accion': 'Actualizar',
+        'reserva': reserva,
+    }
+    return render(request, 'app_turismo/reserva_form.html', contexto)
+
+
+@login_required(login_url='accounts_login')
+@grupo_requerido('Administrador')
+def reserva_eliminar(request, reserva_id):
+    """Elimina una reserva turística."""
+    reserva = get_object_or_404(ReservaTuristica, pk=reserva_id)
+    if request.method == 'POST':
+        reserva_id_str = str(reserva.id)
+        reserva.delete()
+        messages.success(request, f'Reserva #{reserva_id_str} eliminada exitosamente.')
+        return redirect('turismo_reserva_lista')
+
+    contexto = {
+        'titulo': f'Eliminar Reserva #{reserva.id}',
+        'reserva': reserva,
+    }
+    return render(request, 'app_turismo/reserva_eliminar.html', contexto)

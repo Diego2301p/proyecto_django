@@ -7,6 +7,7 @@ desde archivos JSON por el ORM de Django.
 """
 
 from django.db import models
+from django.contrib.auth.models import User
 
 
 class DestinoTuristico(models.Model):
@@ -54,3 +55,74 @@ class DestinoTuristico(models.Model):
         if self.actividades:
             return [a.strip() for a in self.actividades.split(',')]
         return []
+
+
+class ReservaTuristica(models.Model):
+    """
+    Modelo de transacción operacional.
+    Relaciona un usuario con un destino turístico y opcionalmente
+    con un plato típico (experiencia gastronómica).
+
+    Esta es la transacción requerida por la evaluación:
+    - Involucra 2 o más entidades relacionadas (User, DestinoTuristico, PlatoTipico).
+    - Formularios funcionales.
+    - Persistencia en base de datos.
+    - Validaciones.
+    """
+    ESTADO_CHOICES = [
+        ('Pendiente', 'Pendiente'),
+        ('Confirmada', 'Confirmada'),
+        ('Cancelada', 'Cancelada'),
+        ('Completada', 'Completada'),
+    ]
+
+    usuario = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='reservas',
+        verbose_name='Usuario'
+    )
+    destino = models.ForeignKey(
+        DestinoTuristico,
+        on_delete=models.CASCADE,
+        related_name='reservas',
+        verbose_name='Destino Turístico'
+    )
+    plato = models.ForeignKey(
+        'app_gastronomia.PlatoTipico',
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='reservas',
+        verbose_name='Experiencia Gastronómica (opcional)'
+    )
+    fecha_reserva = models.DateField(verbose_name='Fecha de la reserva')
+    num_personas = models.PositiveIntegerField(default=1, verbose_name='Número de personas')
+    estado = models.CharField(
+        max_length=20,
+        choices=ESTADO_CHOICES,
+        default='Pendiente',
+        verbose_name='Estado'
+    )
+    observaciones = models.TextField(
+        blank=True,
+        default='',
+        verbose_name='Observaciones'
+    )
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Fecha de creación')
+    updated_at = models.DateTimeField(auto_now=True, verbose_name='Última actualización')
+
+    class Meta:
+        verbose_name = 'Reserva Turística'
+        verbose_name_plural = 'Reservas Turísticas'
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"Reserva #{self.id} - {self.destino.nombre} ({self.usuario.username})"
+
+    def costo_total(self):
+        """Calcula el costo total estimado de la reserva."""
+        costo = self.destino.precio_estimado * self.num_personas
+        if self.plato:
+            costo += self.plato.precio_referencia * self.num_personas
+        return costo

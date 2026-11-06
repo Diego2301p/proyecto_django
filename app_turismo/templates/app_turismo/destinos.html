@@ -48,22 +48,17 @@
         </div>
     </div>
 
-    {# === BOTONES DE ACCIÓN CRUD === #}
-    {# Estos botones serán funcionales en la siguiente evaluación #}
+    {# === BOTONES DE ACCIÓN CRUD (Evaluación Sumativa 3) === #}
+    {% if puede_mantenedores %}
     <div class="d-flex gap-2 mb-4 flex-wrap">
-        <a href="#" id="btn-agregar-destino" class="btn btn-success">
+        <a href="{% url 'turismo_destino_crear' %}" id="btn-agregar-destino" class="btn btn-success">
             ➕ Agregar Destino
         </a>
-        <a href="#" id="btn-buscar-destino" class="btn btn-primary">
-            🔍 Buscar Destino
-        </a>
-        <a href="#" id="btn-modificar-destino" class="btn btn-warning">
-            ✏️ Modificar Destino
-        </a>
-        <a href="#" id="btn-eliminar-destino" class="btn btn-danger">
-            🗑️ Eliminar Destino
+        <a href="{% url 'turismo_destino_lista' %}" id="btn-buscar-destino" class="btn btn-primary">
+            🔍 Buscar / Mantenedor de Destinos
         </a>
     </div>
+    {% endif %}
 
     {# === LISTADO DE DESTINOS === #}
     {% if hay_resultados %}
@@ -96,10 +91,14 @@
                        class="btn btn-outline-primary btn-sm w-100 mb-2">
                         Ver detalles →
                     </a>
+                    {% if puede_mantenedores %}
                     <div class="d-flex gap-1">
-                        <a href="#" id="btn-mod-{{ destino.id }}" class="btn btn-warning btn-sm flex-fill">✏️ Modificar</a>
-                        <a href="#" id="btn-del-{{ destino.id }}" class="btn btn-danger btn-sm flex-fill">🗑️ Eliminar</a>
+                        <a href="{% url 'turismo_destino_editar' destino.id %}" id="btn-mod-{{ destino.id }}" class="btn btn-warning btn-sm flex-fill">✏️ Modificar</a>
+                        {% if es_admin %}
+                        <a href="{% url 'turismo_destino_eliminar' destino.id %}" id="btn-del-{{ destino.id }}" class="btn btn-danger btn-sm flex-fill">🗑️ Eliminar</a>
+                        {% endif %}
                     </div>
+                    {% endif %}
                 </div>
             </div>
         </div>

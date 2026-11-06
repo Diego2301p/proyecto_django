@@ -1,0 +1,36 @@
+{% extends 'base.html' %}
+{% block titulo %}{{ titulo }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow-sm">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h4 class="mb-0">📅 Reserva #{{ reserva.id }}</h4>
+                    <span class="badge bg-secondary fs-6">{{ reserva.estado }}</span>
+                </div>
+                <div class="card-body">
+                    <dl class="row mb-0">
+                        <dt class="col-sm-4">Destino</dt><dd class="col-sm-8">{{ reserva.destino.nombre }} ({{ reserva.destino.region }})</dd>
+                        <dt class="col-sm-4">Experiencia gastronómica</dt><dd class="col-sm-8">{{ reserva.plato.nombre|default:"Sin experiencia gastronómica" }}</dd>
+                        <dt class="col-sm-4">Fecha</dt><dd class="col-sm-8">{{ reserva.fecha_reserva|date:"d/m/Y" }}</dd>
+                        <dt class="col-sm-4">N° de personas</dt><dd class="col-sm-8">{{ reserva.num_personas }}</dd>
+                        <dt class="col-sm-4">Costo total estimado</dt><dd class="col-sm-8 fw-bold">${{ costo_formateado }} CLP</dd>
+                        <dt class="col-sm-4">Registrada por</dt><dd class="col-sm-8">{{ reserva.usuario.get_full_name|default:reserva.usuario.username }}</dd>
+                        <dt class="col-sm-4">Observaciones</dt><dd class="col-sm-8">{{ reserva.observaciones|default:"—"|linebreaksbr }}</dd>
+                        <dt class="col-sm-4">Creada</dt><dd class="col-sm-8">{{ reserva.created_at|date:"d/m/Y H:i" }}</dd>
+                        <dt class="col-sm-4">Última actualización</dt><dd class="col-sm-8">{{ reserva.updated_at|date:"d/m/Y H:i" }}</dd>
+                    </dl>
+                </div>
+                <div class="card-footer d-flex gap-2">
+                    <a href="{% url 'turismo_reserva_lista' %}" class="btn btn-outline-secondary">← Volver</a>
+                    {% if puede_mantenedores %}<a href="{% url 'turismo_reserva_editar' reserva.id %}" class="btn btn-primary">✏️ Editar</a>{% endif %}
+                    {% if es_admin %}<a href="{% url 'turismo_reserva_eliminar' reserva.id %}" class="btn btn-danger">🗑️ Eliminar</a>{% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
