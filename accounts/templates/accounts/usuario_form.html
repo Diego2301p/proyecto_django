@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block titulo %}{{ titulo }}{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-7">
+            <div class="card shadow-sm">
+                <div class="card-body p-4">
+                    <h3 class="mb-3">{{ titulo }}</h3>
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+                        {% include 'includes/form_campos.html' with form=form %}
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary">💾 Guardar</button>
+                            <a href="{% url 'accounts_usuario_lista' %}" class="btn btn-outline-secondary">Cancelar</a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+{% block titulo %}Acceso denegado{% endblock %}
+
+{% block content %}
+<div class="container py-5 text-center">
+    <h1 class="display-4">⛔ 403</h1>
+    <h3>Acceso denegado</h3>
+    <p class="text-muted">
+        Tu perfil (<strong>{{ perfil }}</strong>) no tiene permisos para acceder a esta sección.<br>
+        Perfiles autorizados: {{ grupos_permitidos|join:", " }}.
+    </p>
+    <a href="{% url 'accounts_dashboard' %}" class="btn btn-primary">Volver a mi Dashboard</a>
+</div>
+{% endblock %}
+

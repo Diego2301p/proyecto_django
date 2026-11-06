@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% block titulo %}Dashboard Administrativo{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-0">📊 Dashboard Administrativo</h2>
+            <small class="text-muted">Permisos mínimos · {{ user.get_full_name|default:user.username }}</small>
+        </div>
+        <span class="badge bg-success fs-6">Administrativo</span>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3"><div class="card text-bg-warning h-100"><div class="card-body">
+            <div class="small">Reservas totales</div><div class="fs-2 fw-bold">{{ total_reservas }}</div></div></div></div>
+        <div class="col-6 col-md-3"><div class="card text-bg-secondary h-100"><div class="card-body">
+            <div class="small">Pendientes</div><div class="fs-2 fw-bold">{{ reservas_pendientes }}</div></div></div></div>
+        <div class="col-6 col-md-3"><div class="card text-bg-light h-100"><div class="card-body">
+            <div class="small">Destinos disponibles</div><div class="fs-2 fw-bold">{{ total_destinos }}</div></div></div></div>
+        <div class="col-6 col-md-3"><div class="card text-bg-light h-100"><div class="card-body">
+            <div class="small">Platos disponibles</div><div class="fs-2 fw-bold">{{ total_platos }}</div></div></div></div>
+    </div>
+
+    <div class="row g-3">
+        <div class="col-md-6">
+            <div class="card h-100"><div class="card-body">
+                <h5>📅 Funcionalidades asignadas</h5>
+                <div class="d-grid gap-2">
+                    <a href="{% url 'turismo_reserva_crear' %}" class="btn btn-warning">+ Registrar Reserva</a>
+                    <a href="{% url 'turismo_reserva_lista' %}" class="btn btn-outline-warning">Consultar Reservas</a>
+                </div>
+            </div></div>
+        </div>
+        <div class="col-md-6">
+            <div class="card h-100 border-danger"><div class="card-body">
+                <h5>🔒 Operaciones restringidas</h5>
+                <ul class="small text-muted mb-0">
+                    <li>Mantenedores de Destinos y Platos</li>
+                    <li>Modificar o eliminar reservas</li>
+                    <li>Gestión de usuarios y perfiles</li>
+                </ul>
+            </div></div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+

@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% block titulo %}Dashboard Administrador{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="mb-0">📊 Dashboard Administrador</h2>
+            <small class="text-muted">Acceso total al sistema · {{ user.get_full_name|default:user.username }}</small>
+        </div>
+        <span class="badge bg-danger fs-6">Administrador</span>
+    </div>
+
+    {# Visualización global del sistema #}
+    <div class="row g-3 mb-4">
+        <div class="col-6 col-md-3"><div class="card text-bg-primary h-100"><div class="card-body">
+            <div class="small">Destinos</div><div class="fs-2 fw-bold">{{ total_destinos }}</div></div></div></div>
+        <div class="col-6 col-md-3"><div class="card text-bg-success h-100"><div class="card-body">
+            <div class="small">Platos</div><div class="fs-2 fw-bold">{{ total_platos }}</div></div></div></div>
+        <div class="col-6 col-md-3"><div class="card text-bg-warning h-100"><div class="card-body">
+            <div class="small">Reservas ({{ reservas_pendientes }} pendientes)</div><div class="fs-2 fw-bold">{{ total_reservas }}</div></div></div></div>
+        <div class="col-6 col-md-3"><div class="card text-bg-dark h-100"><div class="card-body">
+            <div class="small">Usuarios</div><div class="fs-2 fw-bold">{{ total_usuarios }}</div></div></div></div>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-4">
+            <div class="card h-100"><div class="card-body">
+                <h5>🗂️ Mantenedores</h5>
+                <div class="d-grid gap-2">
+                    <a href="{% url 'turismo_destino_lista' %}" class="btn btn-outline-primary">Destinos Turísticos</a>
+                    <a href="{% url 'gastronomia_plato_lista' %}" class="btn btn-outline-success">Platos Típicos</a>
+                </div>
+            </div></div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100"><div class="card-body">
+                <h5>📅 Transacciones</h5>
+                <div class="d-grid gap-2">
+                    <a href="{% url 'turismo_reserva_lista' %}" class="btn btn-outline-warning">Reservas Turísticas</a>
+                    <a href="{% url 'turismo_reserva_crear' %}" class="btn btn-warning">+ Nueva Reserva</a>
+                </div>
+            </div></div>
+        </div>
+        <div class="col-md-4">
+            <div class="card h-100"><div class="card-body">
+                <h5>👥 Gestión de Usuarios</h5>
+                <div class="d-grid gap-2">
+                    <a href="{% url 'accounts_usuario_lista' %}" class="btn btn-outline-dark">Listar Usuarios</a>
+                    <a href="{% url 'accounts_usuario_crear' %}" class="btn btn-dark">+ Crear Usuario</a>
+                </div>
+            </div></div>
+        </div>
+    </div>
+
+    {% include 'accounts/_reservas_recientes.html' %}
+</div>
+{% endblock %}
+

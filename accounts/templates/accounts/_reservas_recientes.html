@@ -1,0 +1,26 @@
+<div class="card">
+    <div class="card-header fw-semibold">🕒 Últimas reservas registradas</div>
+    <div class="table-responsive">
+        <table class="table table-sm table-hover mb-0">
+            <thead class="table-light">
+                <tr><th>#</th><th>Destino</th><th>Plato</th><th>Usuario</th><th>Fecha</th><th>Personas</th><th>Estado</th></tr>
+            </thead>
+            <tbody>
+                {% for r in reservas_recientes %}
+                <tr>
+                    <td><a href="{% url 'turismo_reserva_detalle' r.id %}">{{ r.id }}</a></td>
+                    <td>{{ r.destino.nombre }}</td>
+                    <td>{{ r.plato.nombre|default:"—" }}</td>
+                    <td>{{ r.usuario.username }}</td>
+                    <td>{{ r.fecha_reserva|date:"d/m/Y" }}</td>
+                    <td>{{ r.num_personas }}</td>
+                    <td><span class="badge bg-secondary">{{ r.estado }}</span></td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="7" class="text-center text-muted py-3">No hay reservas registradas.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
