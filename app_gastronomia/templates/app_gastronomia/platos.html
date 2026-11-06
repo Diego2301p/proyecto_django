@@ -49,22 +49,17 @@
         </div>
     </div>
 
-    {# === BOTONES DE ACCIÓN CRUD === #}
-    {# Estos botones serán funcionales en la siguiente evaluación #}
+    {# === BOTONES DE ACCIÓN CRUD (Evaluación Sumativa 3) === #}
+    {% if puede_mantenedores %}
     <div class="d-flex gap-2 mb-4 flex-wrap">
-        <a href="#" id="btn-agregar-plato" class="btn btn-success">
+        <a href="{% url 'gastronomia_plato_crear' %}" id="btn-agregar-plato" class="btn btn-success">
             ➕ Agregar Plato
         </a>
-        <a href="#" id="btn-buscar-plato" class="btn btn-primary">
-            🔍 Buscar Plato
-        </a>
-        <a href="#" id="btn-modificar-plato" class="btn btn-warning">
-            ✏️ Modificar Plato
-        </a>
-        <a href="#" id="btn-eliminar-plato" class="btn btn-danger">
-            🗑️ Eliminar Plato
+        <a href="{% url 'gastronomia_plato_lista' %}" id="btn-buscar-plato" class="btn btn-primary">
+            🔍 Buscar / Mantenedor de Platos
         </a>
     </div>
+    {% endif %}
 
     {# === LISTADO DE PLATOS === #}
     {% if hay_resultados %}
@@ -105,10 +100,14 @@
                        class="btn btn-outline-warning btn-sm w-100 mb-2">
                         Ver receta completa →
                     </a>
+                    {% if puede_mantenedores %}
                     <div class="d-flex gap-1">
-                        <a href="#" id="btn-mod-{{ plato.id }}" class="btn btn-warning btn-sm flex-fill">✏️ Modificar</a>
-                        <a href="#" id="btn-del-{{ plato.id }}" class="btn btn-danger btn-sm flex-fill">🗑️ Eliminar</a>
+                        <a href="{% url 'gastronomia_plato_editar' plato.id %}" id="btn-mod-{{ plato.id }}" class="btn btn-warning btn-sm flex-fill">✏️ Modificar</a>
+                        {% if es_admin %}
+                        <a href="{% url 'gastronomia_plato_eliminar' plato.id %}" id="btn-del-{{ plato.id }}" class="btn btn-danger btn-sm flex-fill">🗑️ Eliminar</a>
+                        {% endif %}
                     </div>
+                    {% endif %}
                 </div>
             </div>
         </div>

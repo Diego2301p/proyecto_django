@@ -11,11 +11,16 @@ Se usa para formatear precios y tiempos de preparación de forma
 legible para el usuario.
 """
 
-from django.shortcuts import render
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from django.db.models import Q
 # humanize: librería externa para formateo legible de números
 import humanize
 
 from .models import PlatoTipico
+from .forms import PlatoTipicoForm
+from accounts.decorators import grupo_requerido
 
 
 # ============================================================
@@ -360,3 +365,103 @@ def detalle_plato(request, plato_id):
     }
 
     return render(request, 'app_gastronomia/detalle_plato.html', contexto)
+
+
+# ============================================================
+# VISTAS CRUD - MANTENEDOR PLATOS TÍPICOS
+# ============================================================
+
+@login_required(login_url='accounts_login')
+@grupo_requerido('Administrador', 'Supervisor')
+def plato_lista(request):
+    """
+    Lista todos los platos típicos con búsqueda.
+    Acceso: Administrador y Supervisor.
+    """
+    query = request.GET.get('q', '')
+    if query:
+        platos_qs = PlatoTipico.objects.filter(
+            Q(nombre__icontains=query) |
+            Q(region__icontains=query) |
+            Q(dificultad__icontains=query)
+        )
+    else:
+        platos_qs = PlatoTipico.objects.all()
+
+    platos_procesados = []
+    for plato in platos_qs:
+        platos_procesados.append({
+            'objeto': plato,
+            'precio_formateado': humanize.intcomma(plato.precio_referencia),
+            'tiempo_formateado': formatear_tiempo(plato.tiempo_preparacion),
+        })
+
+    contexto = {
+        'titulo': 'Mantenedor de Platos Típicos',
+        'platos': platos_procesados,
+        'query': query,
+        'total': len(platos_procesados),
+    }
+    return render(request, 'app_gastronomia/plato_lista.html', contexto)
+
+
+@login_required(login_url='accounts_login')
+@grupo_requerido('Administrador', 'Supervisor')
+def plato_crear(request):
+    """Crea un nuevo plato típico."""
+    if request.method == 'POST':
+        form = PlatoTipicoForm(request.POST)
+        if form.is_valid():
+            plato = form.save()
+            messages.success(request, f'Plato "{plato.nombre}" creado exitosamente.')
+            return redirect('gastronomia_plato_lista')
+    else:
+        form = PlatoTipicoForm()
+
+    contexto = {
+        'titulo': 'Crear Plato Típico',
+        'form': form,
+        'accion': 'Crear',
+    }
+    return render(request, 'app_gastronomia/plato_form.html', contexto)
+
+
+@login_required(login_url='accounts_login')
+@grupo_requerido('Administrador', 'Supervisor')
+def plato_editar(request, plato_id):
+    """Edita un plato típico existente."""
+    plato = get_object_or_404(PlatoTipico, pk=plato_id)
+    if request.method == 'POST':
+        form = PlatoTipicoForm(request.POST, instance=plato)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f'Plato "{plato.nombre}" actualizado exitosamente.')
+            return redirect('gastronomia_plato_lista')
+    else:
+        form = PlatoTipicoForm(instance=plato)
+
+    contexto = {
+        'titulo': f'Editar Plato: {plato.nombre}',
+        'form': form,
+        'accion': 'Actualizar',
+        'plato': plato,
+    }
+    return render(request, 'app_gastronomia/plato_form.html', contexto)
+
+
+@login_required(login_url='accounts_login')
+@grupo_requerido('Administrador')
+def plato_eliminar(request, plato_id):
+    """Elimina un plato típico."""
+    plato = get_object_or_404(PlatoTipico, pk=plato_id)
+    if request.method == 'POST':
+        nombre = plato.nombre
+        plato.delete()
+        messages.success(request, f'Plato "{nombre}" eliminado exitosamente.')
+        return redirect('gastronomia_plato_lista')
+
+    contexto = {
+        'titulo': f'Eliminar Plato: {plato.nombre}',
+        'plato': plato,
+    }
+    return render(request, 'app_gastronomia/plato_eliminar.html', contexto)
