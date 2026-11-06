@@ -87,6 +87,56 @@
                             </li>
                         </ul>
                     </li>
+
+                    {# === MENÚ DE GESTIÓN SEGÚN PERFIL (Evaluación 3) === #}
+                    {% if user.is_authenticated %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'accounts_dashboard' %}">📊 Dashboard</a>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button"
+                           data-bs-toggle="dropdown" aria-expanded="false">
+                            ⚙️ Gestión
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            {% if puede_mantenedores %}
+                            <li><h6 class="dropdown-header">Mantenedores</h6></li>
+                            <li><a class="dropdown-item" href="{% url 'turismo_destino_lista' %}">🏔️ Destinos Turísticos</a></li>
+                            <li><a class="dropdown-item" href="{% url 'gastronomia_plato_lista' %}">🍽️ Platos Típicos</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            {% endif %}
+                            <li><h6 class="dropdown-header">Transacciones</h6></li>
+                            <li><a class="dropdown-item" href="{% url 'turismo_reserva_lista' %}">📅 Reservas Turísticas</a></li>
+                            <li><a class="dropdown-item" href="{% url 'turismo_reserva_crear' %}">➕ Nueva Reserva</a></li>
+                            {% if es_admin %}
+                            <li><hr class="dropdown-divider"></li>
+                            <li><h6 class="dropdown-header">Seguridad</h6></li>
+                            <li><a class="dropdown-item" href="{% url 'accounts_usuario_lista' %}">👥 Usuarios</a></li>
+                            {% endif %}
+                        </ul>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button"
+                           data-bs-toggle="dropdown" aria-expanded="false">
+                            👤 {{ user.username }}
+                            <span class="badge bg-light text-dark">{{ perfil }}</span>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><span class="dropdown-item-text small text-muted">{{ user.get_full_name|default:user.username }}</span></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <form method="post" action="{% url 'accounts_logout' %}" class="px-3">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-outline-danger btn-sm w-100">🚪 Cerrar sesión</button>
+                                </form>
+                            </li>
+                        </ul>
+                    </li>
+                    {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'accounts_login' %}">🔐 Iniciar sesión</a>
+                    </li>
+                    {% endif %}
                 </ul>
             </div>
         </div>
@@ -97,6 +147,18 @@
     {# Las plantillas hijas extienden este bloque (Requisito 4.3)   #}
     {# ============================================================ #}
     <main>
+        {# Mensajes del sistema (éxito, error, info) #}
+        {% if messages %}
+        <div class="container mt-3">
+            {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
         {% block content %}
         {# Contenido por defecto si ninguna plantilla hija lo sobreescribe #}
         <div class="container mt-4">
@@ -146,7 +208,7 @@
             {# Línea inferior del footer #}
             <div class="footer-bottom text-center">
                 <small>
-                    &copy; 2025 Chile Descubre - Proyecto Académico | 
+                    &copy; 2026 Chile Descubre - Proyecto Académico | 
                     Desarrollado con Django y Bootstrap 5
                 </small>
             </div>

@@ -25,15 +25,18 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # ============================================================
 # SEGURIDAD
 # ============================================================
-# Clave secreta para desarrollo local (NO usar en producción)
-SECRET_KEY = 'django-insecure-aqm$ti%ux8%p5g7v0c@zxa2!v@7%@ddp@tx-s$rly+y=c_b3x-'
+# Clave secreta leída desde .env (con valor por defecto solo para desarrollo local)
+SECRET_KEY = os.getenv(
+    'SECRET_KEY',
+    'django-insecure-aqm$ti%ux8%p5g7v0c@zxa2!v@7%@ddp@tx-s$rly+y=c_b3x-'
+)
 
-# Modo debug activado para desarrollo local
-DEBUG = True
+# Modo debug controlado por variable de entorno (True por defecto en desarrollo)
+DEBUG = os.getenv('DEBUG', 'True') == 'True'
 
-# Hosts permitidos: incluir la IP fija de EC2 al desplegar
-# Ejemplo: ALLOWED_HOSTS = ['<TU_IP_FIJA>', 'localhost', '127.0.0.1']
-ALLOWED_HOSTS = ['*']
+# Hosts permitidos: incluir la IP fija de EC2 al desplegar (separados por coma en .env)
+# Ejemplo: ALLOWED_HOSTS=54.12.34.56,localhost,127.0.0.1
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS', '*').split(',')
 
 
 # ============================================================
@@ -50,6 +53,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',   # Necesario para {% static %} en templates
     'app_turismo',                  # App de destinos turísticos de Chile
     'app_gastronomia',              # App de platos típicos chilenos
+    'accounts',                     # App de autenticación, perfiles y dashboards
 ]
 
 
@@ -94,6 +98,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'django.template.context_processors.static',  # Para usar STATIC_URL en templates
+                'accounts.context_processors.perfil_usuario',  # Perfil del usuario (roles)
             ],
         },
     },
@@ -111,19 +116,30 @@ WSGI_APPLICATION = 'config.wsgi.application'
 # ============================================================
 # Configuración de MySQL usando variables de entorno del archivo .env.
 # En EC2: crear la DB, usuario y contraseña según la guía.
-DATABASES = {
-    'default': {
-        'ENGINE': os.getenv('DB_ENGINE', 'django.db.backends.mysql'),
-        'NAME': os.getenv('DB_NAME', 'chile_descubre'),
-        'USER': os.getenv('DB_USER', 'user_chile'),
-        'PASSWORD': os.getenv('DB_PASSWORD', ''),
-        'HOST': os.getenv('DB_HOST', 'localhost'),
-        'PORT': os.getenv('DB_PORT', '3306'),
-        'OPTIONS': {
-            'charset': 'utf8mb4',
-        },
+DB_ENGINE = os.getenv('DB_ENGINE', 'django.db.backends.mysql')
+
+if DB_ENGINE == 'django.db.backends.sqlite3':
+    # Alternativa para pruebas locales sin MySQL (DB_ENGINE=django.db.backends.sqlite3)
+    DATABASES = {
+        'default': {
+            'ENGINE': DB_ENGINE,
+            'NAME': BASE_DIR / os.getenv('DB_NAME', 'db.sqlite3'),
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': DB_ENGINE,
+            'NAME': os.getenv('DB_NAME', 'chile_descubre'),
+            'USER': os.getenv('DB_USER', 'user_chile'),
+            'PASSWORD': os.getenv('DB_PASSWORD', ''),
+            'HOST': os.getenv('DB_HOST', 'localhost'),
+            'PORT': os.getenv('DB_PORT', '3306'),
+            'OPTIONS': {
+                'charset': 'utf8mb4',
+            },
+        }
+    }
 
 
 # ============================================================
@@ -174,3 +190,46 @@ STATIC_ROOT = BASE_DIR / 'staticfiles'
 # CONFIGURACIÓN POR DEFECTO DE CLAVES PRIMARIAS
 # ============================================================
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+
+# ============================================================
+# AUTENTICACIÓN (Evaluación Sumativa 3)
+# ============================================================
+# Vista de login propia (no se usa Django Admin)
+LOGIN_URL = 'accounts_login'
+LOGIN_REDIRECT_URL = 'accounts_dashboard'
+LOGOUT_REDIRECT_URL = 'accounts_login'
+
+# Mensajes con clases de Bootstrap
+from django.contrib.messages import constants as message_constants
+MESSAGE_TAGS = {
+    message_constants.DEBUG: 'secondary',
+    message_constants.INFO: 'info',
+    message_constants.SUCCESS: 'success',
+    message_constants.WARNING: 'warning',
+    message_constants.ERROR: 'danger',
+}
+
+
+# ============================================================
+# CORREO ELECTRÓNICO - RECUPERACIÓN DE CONTRASEÑA
+# ============================================================
+# Por defecto los correos se muestran en la consola (desarrollo).
+# Para enviar correos reales (ej: Gmail) definir en .env:
+#   EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend
+#   EMAIL_HOST=smtp.gmail.com
+#   EMAIL_PORT=587
+#   EMAIL_USE_TLS=True
+#   EMAIL_HOST_USER=tu_correo@gmail.com
+#   EMAIL_HOST_PASSWORD=contraseña_de_aplicacion_de_16_caracteres
+EMAIL_BACKEND = os.getenv('EMAIL_BACKEND', 'django.core.mail.backends.console.EmailBackend')
+EMAIL_HOST = os.getenv('EMAIL_HOST', 'smtp.gmail.com')
+EMAIL_PORT = int(os.getenv('EMAIL_PORT', '587'))
+EMAIL_USE_TLS = os.getenv('EMAIL_USE_TLS', 'True') == 'True'
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER', '')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
+DEFAULT_FROM_EMAIL = os.getenv('DEFAULT_FROM_EMAIL', EMAIL_HOST_USER or 'Chile Descubre <no-reply@chiledescubre.cl>')
+
+# Tiempo de validez del token de recuperación (en segundos): 1 hora
+PASSWORD_RESET_TIMEOUT = 3600
