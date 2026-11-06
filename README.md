@@ -1,45 +1,51 @@
 # 🇨🇱 Chile Descubre
 
-Portal informativo sobre destinos turísticos y gastronomía típica de Chile.  
-Desarrollado con **Django 6.1** + **MySQL** + desplegado en **AWS EC2**.
+Aplicación web sobre destinos turísticos y gastronomía típica de Chile, con gestión de usuarios por roles, mantenedores CRUD y sistema de reservas.
+Desarrollada con **Django 6.1** + **MySQL** + **Bootstrap 5** y desplegada en **AWS EC2**.
 
 ---
 
 ## 📋 Descripción del Proyecto
 
-**Chile Descubre** es una aplicación web académica que permite explorar:
+**Chile Descubre** permite consultar y administrar:
 - **Destinos turísticos** de Chile (Torres del Paine, San Pedro de Atacama, Valparaíso, etc.)
 - **Platos típicos** de la gastronomía chilena (Empanadas, Pastel de Choclo, Cazuela, etc.)
-
-La información se almacena en una base de datos **MySQL** y se administra mediante **Django Admin**.
+- **Reservas turísticas** asociadas a un destino y opcionalmente a un plato típico.
+- **Usuarios y perfiles** (`Administrador`, `Supervisor` y `Administrativo`), cada uno con su propio dashboard y nivel de permisos, además de recuperación de contraseña por correo electrónico.
 
 ---
 
-## 🏗️ Arquitectura del Proyecto
+## 🏗️ Estructura del Proyecto
 
 ```
 proyecto_django/
-├── app_turismo/          # App de destinos turísticos
-│   ├── models.py         # Modelo: DestinoTuristico
-│   ├── views.py          # Vistas con Django ORM
+├── accounts/             # Autenticación, perfiles, dashboards y usuarios
+│   ├── decorators.py     # Control de acceso por grupo
+│   ├── forms.py          # Formularios de login y usuarios
+│   ├── views.py          # Vistas de sesión, paneles y CRUD usuarios
+│   ├── urls.py           # Rutas /accounts/
+│   └── templates/        # Plantillas de cuentas y recuperación de clave
+├── app_turismo/          # Destinos turísticos y reservas
+│   ├── models.py         # DestinoTuristico y ReservaTuristica
+│   ├── forms.py          # Formularios de destinos y reservas
+│   ├── views.py          # Vistas públicas y mantenedores
 │   ├── urls.py           # Rutas /turismo/
-│   ├── admin.py          # Registro en Django Admin
 │   ├── data/             # JSON con datos iniciales
 │   └── templates/        # Plantillas HTML
-├── app_gastronomia/      # App de platos típicos
-│   ├── models.py         # Modelo: PlatoTipico
-│   ├── views.py          # Vistas con Django ORM
+├── app_gastronomia/      # Platos típicos chilenos
+│   ├── models.py         # PlatoTipico
+│   ├── forms.py          # Formulario de platos
+│   ├── views.py          # Vistas públicas y mantenedor
 │   ├── urls.py           # Rutas /gastronomia/
-│   ├── admin.py          # Registro en Django Admin
 │   ├── data/             # JSON con datos iniciales
 │   └── templates/        # Plantillas HTML
-├── config/               # Configuración Django
-│   ├── settings.py       # Ajustes (MySQL, Admin, etc.)
-│   └── urls.py           # URLs raíz
+├── config/               # Configuración general de Django
+│   ├── settings.py       # Base de datos, correo SMTP y sesiones
+│   └── urls.py           # Rutas principales
 ├── templates/            # Plantillas globales (base.html)
-├── static/               # CSS, JS, Imágenes (Bootstrap local)
+├── static/               # CSS, JS e imágenes (Bootstrap local)
 ├── requirements.txt      # Dependencias Python
-└── .env                  # Variables de entorno (no en git)
+└── .env                  # Variables de entorno (no incluido en git)
 ```
 
 ---
@@ -49,70 +55,69 @@ proyecto_django/
 **Motor**: MySQL  
 **Base de datos**: `chile_descubre`
 
-### Modelos implementados:
-
 | Modelo | App | Descripción |
 |--------|-----|-------------|
 | `DestinoTuristico` | app_turismo | Destinos turísticos de Chile |
 | `PlatoTipico` | app_gastronomia | Platos típicos de la gastronomía chilena |
+| `ReservaTuristica` | app_turismo | Reservas asociadas a usuario, destino y plato |
+| `User` / `Group` | django.contrib.auth | Cuentas de usuario y perfiles de acceso |
 
 ---
 
 ## 🚀 Despliegue
 
 - **Plataforma**: Amazon AWS EC2
-- **Sistema operativo**: Ubuntu Server 24.04 LTS
+- **Sistema operativo**: Ubuntu Server LTS
 - **IP del servidor**: 100.56.39.123
 - **Puerto**: 8000
 - **Control de versiones**: Git + GitHub
 
 ---
 
-## ⚙️ Instalación local
+## ⚙️ Instalación
 
-### 1. Clonar el repositorio
+### 1. Clonar el repositorio y activar entorno virtual
 ```bash
 git clone https://github.com/Diego2301p/proyecto_django.git
 cd proyecto_django
-```
-
-### 2. Crear entorno virtual
-```bash
 python3 -m venv venv
 source venv/bin/activate  # Linux/Mac
 venv\Scripts\activate     # Windows
-```
-
-### 3. Instalar dependencias
-```bash
 pip install -r requirements.txt
 ```
 
-### 4. Configurar variables de entorno
-Crear archivo `.env` en la raíz del proyecto:
-```
+### 2. Configurar variables de entorno (`.env`)
+```env
 DB_ENGINE=django.db.backends.mysql
 DB_NAME=chile_descubre
 DB_USER=user_chile
 DB_PASSWORD=TU_PASSWORD_SEGURA
 DB_HOST=localhost
 DB_PORT=3306
+
+EMAIL_BACKEND=django.core.mail.backends.smtp.EmailBackend
+EMAIL_HOST=smtp.gmail.com
+EMAIL_PORT=587
+EMAIL_USE_TLS=True
+EMAIL_HOST_USER=tu_correo@gmail.com
+EMAIL_HOST_PASSWORD=tu_clave_de_aplicacion
 ```
 
-### 5. Ejecutar migraciones y cargar datos
+### 3. Ejecutar migraciones, datos iniciales y roles
 ```bash
-python manage.py makemigrations
 python manage.py migrate
-python manage.py createsuperuser
 python manage.py cargar_datos_iniciales
-```
-
-### 6. Correr el servidor
-```bash
+python manage.py crear_roles --usuarios-demo
 python manage.py runserver
 ```
 
-Visita: http://localhost:8000
+### Perfiles de prueba (`crear_roles --usuarios-demo`)
+
+| Usuario | Contraseña | Perfil |
+|---------|------------|--------|
+| `admin` | `Dark2301$` | Administrador |
+| `supervisor` | `Dark2301$` | Supervisor |
+| `administrativo` | `Dark2301$` | Administrativo |
 
 ---
 
@@ -120,7 +125,7 @@ Visita: http://localhost:8000
 
 | Tecnología | Versión |
 |-----------|---------|
-| Python | 3.12 |
+| Python | 3.12+ |
 | Django | 6.1.1 |
 | MySQL | 8.x |
 | Bootstrap | 5 (local) |
@@ -130,15 +135,6 @@ Visita: http://localhost:8000
 
 ---
 
-## 📁 Archivos importantes
-
-- `.gitignore` — excluye `venv/`, `.env`, `__pycache__/`, `staticfiles/`
-- `requirements.txt` — dependencias del proyecto
-- `manage.py` — punto de entrada de Django
-- `.env` — variables de entorno (**NO incluido en el repositorio**)
-
----
-
 ## 👤 Autor
 
-**Diego** — Proyecto académico Back End | INACAP La Serena | Primavera 2026
+**Diego** - Proyecto académico Back End | INACAP La Serena | Primavera 2026

@@ -1,5 +1,5 @@
 """
-accounts/tests.py - Pruebas automáticas de los requisitos de la Evaluación Sumativa 3.
+accounts/tests.py - Pruebas del módulo de cuentas, permisos y reservas.
 
 Ejecutar con:
     python manage.py test
@@ -21,7 +21,7 @@ from app_turismo.models import DestinoTuristico, ReservaTuristica
 PASSWORD = 'Dark2301$'
 
 
-class BaseEva3(TestCase):
+class SistemaTestBase(TestCase):
     """Crea perfiles, un usuario por perfil y datos mínimos."""
 
     @classmethod
@@ -43,7 +43,7 @@ class BaseEva3(TestCase):
         self.client.login(username=self.usuarios[grupo].username, password=PASSWORD)
 
 
-class AutenticacionTests(BaseEva3):
+class AutenticacionTests(SistemaTestBase):
     def test_login_y_logout(self):
         r = self.client.post(reverse('accounts_login'), {'username': 'ana', 'password': PASSWORD})
         self.assertRedirects(r, reverse('accounts_dashboard'), fetch_redirect_response=False)
@@ -67,7 +67,7 @@ class AutenticacionTests(BaseEva3):
         self.assertEqual(self.client.get('/admin/').status_code, 404)
 
 
-class DashboardYPermisosTests(BaseEva3):
+class DashboardYPermisosTests(SistemaTestBase):
     def test_dashboard_por_perfil(self):
         esperado = {
             'Administrador': 'accounts_dashboard_admin',
@@ -103,7 +103,7 @@ class DashboardYPermisosTests(BaseEva3):
             self.assertEqual(self.client.get(reverse(nombre)).status_code, 200, nombre)
 
 
-class GestionUsuariosTests(BaseEva3):
+class GestionUsuariosTests(SistemaTestBase):
     def test_crear_usuario_con_grupo(self):
         self.entrar('Administrador')
         grupo = Group.objects.get(name='Supervisor')
@@ -116,7 +116,7 @@ class GestionUsuariosTests(BaseEva3):
         self.assertTrue(User.objects.get(username='nuevo').groups.filter(name='Supervisor').exists())
 
 
-class MantenedoresTests(BaseEva3):
+class MantenedoresTests(SistemaTestBase):
     def test_crud_destino(self):
         self.entrar('Administrador')
         datos = {'nombre': 'Pisco Elqui', 'region': 'Coquimbo', 'descripcion': 'Pueblo',
@@ -161,7 +161,7 @@ class MantenedoresTests(BaseEva3):
         self.assertFalse(PlatoTipico.objects.filter(nombre='').exists())
 
 
-class TransaccionReservaTests(BaseEva3):
+class TransaccionReservaTests(SistemaTestBase):
     def test_crear_reserva_relaciona_entidades(self):
         self.entrar('Administrativo')
         manana = (date.today() + timedelta(days=1)).isoformat()
@@ -184,7 +184,7 @@ class TransaccionReservaTests(BaseEva3):
         self.assertEqual(ReservaTuristica.objects.count(), 0)
 
 
-class RecuperacionContrasenaTests(BaseEva3):
+class RecuperacionContrasenaTests(SistemaTestBase):
     def test_flujo_completo(self):
         # 1. Solicitar recuperación
         r = self.client.post(reverse('password_reset'), {'email': 'ana@test.cl'})

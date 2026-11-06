@@ -59,15 +59,8 @@ class DestinoTuristico(models.Model):
 
 class ReservaTuristica(models.Model):
     """
-    Modelo de transacción operacional.
-    Relaciona un usuario con un destino turístico y opcionalmente
-    con un plato típico (experiencia gastronómica).
-
-    Esta es la transacción requerida por la evaluación:
-    - Involucra 2 o más entidades relacionadas (User, DestinoTuristico, PlatoTipico).
-    - Formularios funcionales.
-    - Persistencia en base de datos.
-    - Validaciones.
+    Modelo que registra una reserva asociada a un usuario, un destino
+    turístico y opcionalmente un plato típico.
     """
     ESTADO_CHOICES = [
         ('Pendiente', 'Pendiente'),

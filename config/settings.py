@@ -194,9 +194,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
 # ============================================================
-# AUTENTICACIÓN (Evaluación Sumativa 3)
+# AUTENTICACIÓN Y MENSAJES
 # ============================================================
-# Vista de login propia (no se usa Django Admin)
 LOGIN_URL = 'accounts_login'
 LOGIN_REDIRECT_URL = 'accounts_dashboard'
 LOGOUT_REDIRECT_URL = 'accounts_login'

@@ -1,17 +1,8 @@
 """
-Management command: crear_roles
+Comando crear_roles
 
-Crea los tres perfiles (grupos) exigidos por la evaluación y les asigna
-permisos diferenciados del sistema de permisos de Django:
-
-    Administrador  → Acceso total (todos los permisos de mantenedores,
-                     transacciones y usuarios).
-    Supervisor     → Permisos intermedios (agregar/ver/modificar destinos,
-                     platos y reservas; sin eliminar, sin usuarios).
-    Administrativo → Permisos mínimos (ver destinos/platos, ver y agregar
-                     reservas).
-
-Opcionalmente crea un usuario de demostración por perfil.
+Configura los grupos Administrador, Supervisor y Administrativo con sus
+permisos correspondientes. Con --usuarios-demo crea también cuentas de prueba.
 
 Uso:
     python manage.py crear_roles

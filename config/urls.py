@@ -1,16 +1,12 @@
 """
 config/urls.py - Archivo de URLs principal del proyecto.
 
-Actúa como punto de entrada único del proyecto. Usa include() para
-vincular las rutas de cada aplicación bajo su propio prefijo:
-- /             → Redirige al inicio de app_turismo
-- /accounts/    → Login, logout, dashboards y gestión de usuarios
-- /password-reset/ → Recuperación de contraseña por correo electrónico
-- /turismo/     → Rutas de la aplicación de turismo
-- /gastronomia/ → Rutas de la aplicación de gastronomía
-
-Evaluación Sumativa 3: se elimina la ruta /admin/. Toda la gestión
-se realiza desde interfaces propias desarrolladas con Django Templates.
+Rutas principales:
+- /                -> Redirige al inicio de app_turismo
+- /accounts/       -> Login, logout, dashboards y usuarios
+- /password-reset/ -> Recuperación de contraseña por correo
+- /turismo/        -> Destinos turísticos y reservas
+- /gastronomia/    -> Platos típicos chilenos
 """
 
 from django.urls import path, include, reverse_lazy
@@ -19,29 +15,14 @@ from django.contrib.auth import views as auth_views
 
 
 def redirigir_a_inicio(request):
-    """
-    Vista simple que redirige la ruta raíz '/' hacia la página
-    de inicio de la aplicación de turismo.
-    """
     return redirect('turismo_inicio')
 
 
 urlpatterns = [
-    # Página de inicio general del proyecto → redirige a app_turismo
     path('', redirigir_a_inicio, name='inicio'),
-
-    # Autenticación, dashboards y gestión de usuarios
     path('accounts/', include('accounts.urls')),
 
-    # ============================================================
-    # RECUPERACIÓN DE CONTRASEÑA (sistema de autenticación de Django)
-    # 1. Solicitar recuperación mediante correo electrónico
-    # 2. Generar token seguro (PasswordResetTokenGenerator)
-    # 3. Enviar enlace de recuperación al correo del usuario
-    # 4. Validar token
-    # 5. Establecer nueva contraseña
-    # 6. Confirmar cambio exitoso
-    # ============================================================
+    # Recuperación de contraseña por correo
     path('password-reset/',
          auth_views.PasswordResetView.as_view(
              template_name='accounts/password_reset_form.html',
@@ -68,9 +49,6 @@ urlpatterns = [
          ),
          name='password_reset_complete'),
 
-    # Rutas de la aplicación de destinos turísticos de Chile
     path('turismo/', include('app_turismo.urls')),
-
-    # Rutas de la aplicación de platos típicos chilenos
     path('gastronomia/', include('app_gastronomia.urls')),
 ]
